@@ -86,15 +86,29 @@ class LoginSystem {
             console.error('Login error:', error);
             let errorMessage = 'Anmeldung fehlgeschlagen.';
             
+            // Detaillierte Fehlerbehandlung
             if (error.message === 'Invalid login credentials') {
-                errorMessage = 'E-Mail oder Passwort ist falsch.';
+                errorMessage = 'E-Mail oder Passwort ist falsch. Bitte überprüfe deine Eingaben.';
             } else if (error.message === 'Email not confirmed') {
-                errorMessage = 'Bitte bestätige deine E-Mail-Adresse.';
+                errorMessage = 'Bitte bestätige deine E-Mail-Adresse über den Link in deiner E-Mail.';
             } else if (error.message.includes('fetch')) {
                 errorMessage = 'Verbindung zur Datenbank fehlgeschlagen. Prüfe die Konfiguration.';
+            } else if (error.message.includes('signup')) {
+                errorMessage = 'Registrierung fehlgeschlagen. Bitte versuche es erneut.';
+            } else if (error.message.includes('rate limit')) {
+                errorMessage = 'Zu viele Anmeldeversuche. Bitte warte einen Moment und versuche es erneut.';
+            } else if (error.message.includes('network')) {
+                errorMessage = 'Netzwerkfehler. Bitte überprüfe deine Internetverbindung.';
+            } else if (error.message.includes('timeout')) {
+                errorMessage = 'Verbindung unterbrochen. Bitte versuche es erneut.';
+            } else if (error.message) {
+                errorMessage = `Fehler: ${error.message}`;
             }
             
-            this.showAlert('Fehler', errorMessage, 'error');
+            this.showAlert('Anmeldung fehlgeschlagen', errorMessage, 'error');
+            
+            // Fokus zurück auf E-Mail-Feld setzen
+            document.getElementById('login-email').focus();
         } finally {
             this.showLoading(false);
         }
@@ -149,13 +163,23 @@ class LoginSystem {
             console.error('Registration error:', error);
             let errorMessage = 'Registrierung fehlgeschlagen.';
             
+            // Detaillierte Fehlerbehandlung für Registrierung
             if (error.message === 'User already registered') {
-                errorMessage = 'E-Mail-Adresse ist bereits registriert.';
+                errorMessage = 'E-Mail-Adresse ist bereits registriert. Bitte logge dich ein oder verwende eine andere E-Mail.';
             } else if (error.message.includes('password')) {
-                errorMessage = 'Passwort ist zu schwach.';
+                errorMessage = 'Passwort ist zu schwach. Verwende mindestens 6 Zeichen.';
+            } else if (error.message.includes('email')) {
+                errorMessage = 'Ungültige E-Mail-Adresse. Bitte überprüfe deine Eingabe.';
+            } else if (error.message.includes('rate limit')) {
+                errorMessage = 'Zu viele Registrierungsversuche. Bitte warte einen Moment.';
+            } else if (error.message) {
+                errorMessage = `Registrierungsfehler: ${error.message}`;
             }
             
-            this.showAlert('Fehler', errorMessage, 'error');
+            this.showAlert('Registrierung fehlgeschlagen', errorMessage, 'error');
+            
+            // Fokus zurück auf Name-Feld setzen
+            document.getElementById('register-name').focus();
         } finally {
             this.showLoading(false);
         }
@@ -269,5 +293,8 @@ function showTab(tabName) {
 
 // Initialize login system when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new LoginSystem();
+    // Wait a bit for config.js to load
+    setTimeout(() => {
+        new LoginSystem();
+    }, 100);
 });

@@ -240,6 +240,11 @@ body {
 
 .alert.error {
     border-left: 4px solid #E74C3C;
+    background: #fdf2f2;
+}
+
+.alert.error .alert-title {
+    color: #E74C3C;
 }
 
 .alert.info {

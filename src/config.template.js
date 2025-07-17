@@ -6,6 +6,15 @@ const SUPABASE_CONFIG = {
     anonKey: '{{SUPABASE_ANON_KEY}}'
 };
 
+// Export CONFIG for login system
+window.CONFIG = {
+    supabaseUrl: SUPABASE_CONFIG.url,
+    supabaseKey: SUPABASE_CONFIG.anonKey
+};
+
+// Debug: Log CONFIG
+console.log('CONFIG loaded:', window.CONFIG);
+
 // Initialize Supabase client
 const supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
 
