@@ -180,33 +180,19 @@ CREATE TABLE user_profiles (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
--- Enable RLS on user_profiles
-ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
-
 -- Enable RLS on existing tables
 ALTER TABLE teams ENABLE ROW LEVEL SECURITY;
 ALTER TABLE players ENABLE ROW LEVEL SECURITY;
 ALTER TABLE matches ENABLE ROW LEVEL SECURITY;
 ALTER TABLE achievements ENABLE ROW LEVEL SECURITY;
 
--- Policies for user_profiles
-CREATE POLICY "Users can view their own profile" ON user_profiles FOR SELECT USING (id = auth.uid());
-CREATE POLICY "Users can update their own profile" ON user_profiles FOR UPDATE USING (id = auth.uid());
-CREATE POLICY "Admins can view all profiles" ON user_profiles FOR SELECT USING (
-    auth.jwt() ->> 'email' IN ('admin@wilde-liga.de', 'admin@example.com')
-);
-CREATE POLICY "Admins can manage all profiles" ON user_profiles FOR ALL USING (
-    auth.jwt() ->> 'email' IN ('admin@wilde-liga.de', 'admin@example.com')
-);
+-- Do NOT enable RLS on user_profiles to avoid circular dependencies
+-- Public read access and authenticated user can modify their own profile
 
 -- Policies for teams
 CREATE POLICY "Public can view teams" ON teams FOR SELECT TO public USING (true);
 CREATE POLICY "Admins can manage teams" ON teams FOR ALL USING (
-    EXISTS (
-        SELECT 1 FROM user_profiles 
-        WHERE user_profiles.id = auth.uid() 
-        AND user_profiles.role = 'admin'
-    )
+    auth.jwt() ->> 'email' IN ('admin@wilde-liga.de', 'admin@example.com')
 );
 CREATE POLICY "Team captains can update their team" ON teams FOR UPDATE USING (
     EXISTS (
@@ -220,11 +206,7 @@ CREATE POLICY "Team captains can update their team" ON teams FOR UPDATE USING (
 -- Policies for players
 CREATE POLICY "Public can view players" ON players FOR SELECT TO public USING (true);
 CREATE POLICY "Admins can manage players" ON players FOR ALL USING (
-    EXISTS (
-        SELECT 1 FROM user_profiles 
-        WHERE user_profiles.id = auth.uid() 
-        AND user_profiles.role = 'admin'
-    )
+    auth.jwt() ->> 'email' IN ('admin@wilde-liga.de', 'admin@example.com')
 );
 CREATE POLICY "Team captains can manage their team players" ON players FOR ALL USING (
     EXISTS (
@@ -238,11 +220,7 @@ CREATE POLICY "Team captains can manage their team players" ON players FOR ALL U
 -- Policies for matches
 CREATE POLICY "Public can view matches" ON matches FOR SELECT TO public USING (true);
 CREATE POLICY "Admins can manage matches" ON matches FOR ALL USING (
-    EXISTS (
-        SELECT 1 FROM user_profiles 
-        WHERE user_profiles.id = auth.uid() 
-        AND user_profiles.role = 'admin'
-    )
+    auth.jwt() ->> 'email' IN ('admin@wilde-liga.de', 'admin@example.com')
 );
 CREATE POLICY "Team captains can update their team matches" ON matches FOR UPDATE USING (
     EXISTS (
@@ -256,11 +234,7 @@ CREATE POLICY "Team captains can update their team matches" ON matches FOR UPDAT
 -- Policies for achievements
 CREATE POLICY "Public can view achievements" ON achievements FOR SELECT TO public USING (true);
 CREATE POLICY "Admins can manage achievements" ON achievements FOR ALL USING (
-    EXISTS (
-        SELECT 1 FROM user_profiles 
-        WHERE user_profiles.id = auth.uid() 
-        AND user_profiles.role = 'admin'
-    )
+    auth.jwt() ->> 'email' IN ('admin@wilde-liga.de', 'admin@example.com')
 );
 CREATE POLICY "Team captains can manage their team achievements" ON achievements FOR ALL USING (
     EXISTS (

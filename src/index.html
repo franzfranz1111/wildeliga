@@ -517,9 +517,8 @@
                     Object.keys(matchesByMatchday)
                         .sort((a, b) => b - a) // Sort descending
                         .forEach(matchday => {
-                            const isLatest = matchday == Math.max(...Object.keys(matchesByMatchday));
                             const matchdayHtml = `
-                                <div class="matchday" data-matchday="${matchday}" ${!isLatest ? 'style="display: none;"' : ''}>
+                                <div class="matchday" data-matchday="${matchday}">
                                     <h3>${matchday}. Spieltag</h3>
                                     <div class="matches">
                                         ${matchesByMatchday[matchday].map(match => `
