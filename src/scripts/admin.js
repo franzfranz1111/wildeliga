@@ -140,32 +140,55 @@ async function loadInitialData() {
 // Team Management
 async function loadTeams() {
     try {
-        teams = await WildeLigaAPI.getTeams();
+        const { data, error } = await supabase
+            .from('teams')
+            .select('*')
+            .order('name');
+        
+        if (error) {
+            console.error('Error loading teams:', error);
+            showErrorMessage('Fehler beim Laden der Teams: ' + error.message);
+            return;
+        }
+        
+        teams = data || [];
+        console.log('Loaded teams:', teams);
         renderTeams();
     } catch (error) {
         console.error('Error loading teams:', error);
+        showErrorMessage('Fehler beim Laden der Teams');
     }
 }
 
 function renderTeams() {
     const container = document.getElementById('teamsGrid');
+    if (!container) {
+        console.error('teamsGrid container not found');
+        return;
+    }
+    
     container.innerHTML = '';
     
+    if (teams.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #666; margin: 20px;">Keine Teams gefunden.</p>';
+        return;
+    }
+    
     teams.forEach(team => {
-        const teamCard = `
-            <div class="team-admin-card">
-                <h3>${team.name}</h3>
-                <p><strong>Kürzel:</strong> ${team.short_name || '-'}</p>
-                <p><strong>Trainer:</strong> ${team.coach || '-'}</p>
-                <p><strong>Stadion:</strong> ${team.stadium || '-'}</p>
-                <p><strong>E-Mail:</strong> ${team.email || '-'}</p>
-                <div class="team-admin-actions">
-                    <button class="btn-edit" onclick="editTeam('${team.id}')">Bearbeiten</button>
-                    <button class="btn-danger" onclick="deleteTeam('${team.id}')">Löschen</button>
-                </div>
+        const teamCard = document.createElement('div');
+        teamCard.className = 'team-admin-card';
+        teamCard.innerHTML = `
+            <h3>${team.name}</h3>
+            <p><strong>Kürzel:</strong> ${team.short_name || '-'}</p>
+            <p><strong>Trainer:</strong> ${team.coach || '-'}</p>
+            <p><strong>Stadion:</strong> ${team.stadium || '-'}</p>
+            <p><strong>E-Mail:</strong> ${team.email || '-'}</p>
+            <div class="team-admin-actions">
+                <button class="btn-edit" onclick="editTeam('${team.id}')">Bearbeiten</button>
+                <button class="btn-danger" onclick="deleteTeam('${team.id}')">Löschen</button>
             </div>
         `;
-        container.innerHTML += teamCard;
+        container.appendChild(teamCard);
     });
 }
 

@@ -193,18 +193,10 @@ ALTER TABLE achievements ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can view their own profile" ON user_profiles FOR SELECT USING (id = auth.uid());
 CREATE POLICY "Users can update their own profile" ON user_profiles FOR UPDATE USING (id = auth.uid());
 CREATE POLICY "Admins can view all profiles" ON user_profiles FOR SELECT USING (
-    EXISTS (
-        SELECT 1 FROM user_profiles 
-        WHERE user_profiles.id = auth.uid() 
-        AND user_profiles.role = 'admin'
-    )
+    auth.jwt() ->> 'email' IN ('admin@wilde-liga.de', 'admin@example.com')
 );
 CREATE POLICY "Admins can manage all profiles" ON user_profiles FOR ALL USING (
-    EXISTS (
-        SELECT 1 FROM user_profiles 
-        WHERE user_profiles.id = auth.uid() 
-        AND user_profiles.role = 'admin'
-    )
+    auth.jwt() ->> 'email' IN ('admin@wilde-liga.de', 'admin@example.com')
 );
 
 -- Policies for teams
