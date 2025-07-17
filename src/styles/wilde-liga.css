@@ -326,6 +326,13 @@ body {
   min-width: 50px;
 }
 
+.score.scheduled {
+  color: #666;
+  background: #f0f0f0;
+  font-style: italic;
+  font-weight: 500;
+}
+
 /* Teams Section */
 .teams-section {
   background: var(--white);

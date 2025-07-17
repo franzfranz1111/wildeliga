@@ -521,13 +521,17 @@
                                 <div class="matchday" data-matchday="${matchday}">
                                     <h3>${matchday}. Spieltag</h3>
                                     <div class="matches">
-                                        ${matchesByMatchday[matchday].map(match => `
-                                            <div class="match" data-home="${match.home_team.name}" data-away="${match.away_team.name}">
-                                                <span class="team home">${match.home_team.name}</span>
-                                                <span class="score">${match.home_score}:${match.away_score}</span>
-                                                <span class="team away">${match.away_team.name}</span>
-                                            </div>
-                                        `).join('')}
+                                        ${matchesByMatchday[matchday].map(match => {
+                                            const isScheduled = match.home_score === null || match.away_score === null;
+                                            const scoreDisplay = isScheduled ? 'geplant' : `${match.home_score}:${match.away_score}`;
+                                            return `
+                                                <div class="match" data-home="${match.home_team.name}" data-away="${match.away_team.name}">
+                                                    <span class="team home">${match.home_team.name}</span>
+                                                    <span class="score ${isScheduled ? 'scheduled' : ''}">${scoreDisplay}</span>
+                                                    <span class="team away">${match.away_team.name}</span>
+                                                </div>
+                                            `;
+                                        }).join('')}
                                     </div>
                                 </div>
                             `;

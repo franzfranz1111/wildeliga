@@ -121,7 +121,6 @@ const WildeLigaAPI = {
                 home_team:teams!matches_home_team_id_fkey(name),
                 away_team:teams!matches_away_team_id_fkey(name)
             `)
-            .eq('status', 'completed')
             .order('matchday', { ascending: false });
         
         if (error) {
