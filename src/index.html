@@ -1,63 +1,656 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ride Far. Run Free. | Endurance Sports</title>
-  <link rel="stylesheet" href="styles/landing.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wilde Liga Bremen - Fußball</title>
+    <link rel="stylesheet" href="styles/wilde-liga.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
 </head>
 <body>
-  <nav class="navbar">
-    <div class="nav-logo">🏔️</div>
-    <ul class="nav-links">
-      <li><a href="#">Home</a></li>
-      <li><a href="#">Training</a></li>
-      <li><a href="#">Gear</a></li>
-      <li><a href="#">Stories</a></li>
-      <li><a href="#">Community</a></li>
-    </ul>
-  </nav>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <h1>⚽ Wilde Liga Bremen</h1>
+                <p>Deine lokale Fußballliga</p>
+            </div>
+            <nav class="nav">
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#tabelle">Tabelle</a></li>
+                    <li><a href="#ergebnisse">Ergebnisse</a></li>
+                    <li><a href="#termine">Termine</a></li>
+                    <li><a href="#teams">Teams</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
-  <header class="hero">
-    <div class="hero-overlay">
-      <h1>Ride Far. Run Free.</h1>
-    </div>
-    <div class="hero-images">
-      <div class="hero-img hero-cycling"></div>
-      <div class="hero-img hero-running"></div>
-    </div>
-  </header>
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero" id="home">
+                <h2>Willkommen zur Wilde Liga Bremen</h2>
+                <p>Die spannendste Fußballliga in Bremen - Spieltag für Spieltag pure Leidenschaft!</p>
+            </section>
 
-  <section class="icons-row">
-    <span class="icon">🚴‍♂️</span>
-    <span class="icon">👟</span>
-    <span class="icon">❤️</span>
-  </section>
+            <!-- League Table -->
+            <section class="league-table-section" id="tabelle">
+                <h2>Aktuelle Tabelle</h2>
+                <div class="table-container">
+                    <table class="league-table">
+                        <thead>
+                            <tr>
+                                <th>Platz</th>
+                                <th>Team</th>
+                                <th>Sp</th>
+                                <th>S</th>
+                                <th>U</th>
+                                <th>N</th>
+                                <th>Tore</th>
+                                <th>Diff</th>
+                                <th>Punkte</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="champion">
+                                <td>1</td>
+                                <td class="team-name">FC Werdersee</td>
+                                <td>12</td>
+                                <td>10</td>
+                                <td>1</td>
+                                <td>1</td>
+                                <td>32:8</td>
+                                <td>+24</td>
+                                <td class="points">31</td>
+                            </tr>
+                            <tr class="champion">
+                                <td>2</td>
+                                <td class="team-name">SV Neustadt</td>
+                                <td>12</td>
+                                <td>8</td>
+                                <td>2</td>
+                                <td>2</td>
+                                <td>28:15</td>
+                                <td>+13</td>
+                                <td class="points">26</td>
+                            </tr>
+                            <tr class="champion">
+                                <td>3</td>
+                                <td class="team-name">Bremer SV</td>
+                                <td>12</td>
+                                <td>7</td>
+                                <td>3</td>
+                                <td>2</td>
+                                <td>25:18</td>
+                                <td>+7</td>
+                                <td class="points">24</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td class="team-name">FC Vahr</td>
+                                <td>12</td>
+                                <td>6</td>
+                                <td>2</td>
+                                <td>4</td>
+                                <td>21:19</td>
+                                <td>+2</td>
+                                <td class="points">20</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td class="team-name">TSV Findorff</td>
+                                <td>12</td>
+                                <td>5</td>
+                                <td>3</td>
+                                <td>4</td>
+                                <td>18:20</td>
+                                <td>-2</td>
+                                <td class="points">18</td>
+                            </tr>
+                            <tr>
+                                <td>6</td>
+                                <td class="team-name">SG Aumund</td>
+                                <td>12</td>
+                                <td>4</td>
+                                <td>4</td>
+                                <td>4</td>
+                                <td>16:17</td>
+                                <td>-1</td>
+                                <td class="points">16</td>
+                            </tr>
+                            <tr>
+                                <td>7</td>
+                                <td class="team-name">FC Borgfeld</td>
+                                <td>12</td>
+                                <td>3</td>
+                                <td>3</td>
+                                <td>6</td>
+                                <td>14:22</td>
+                                <td>-8</td>
+                                <td class="points">12</td>
+                            </tr>
+                            <tr class="relegation">
+                                <td>8</td>
+                                <td class="team-name">SV Grohn</td>
+                                <td>12</td>
+                                <td>2</td>
+                                <td>4</td>
+                                <td>6</td>
+                                <td>12:24</td>
+                                <td>-12</td>
+                                <td class="points">10</td>
+                            </tr>
+                            <tr class="relegation">
+                                <td>9</td>
+                                <td class="team-name">FC Schwachhausen</td>
+                                <td>12</td>
+                                <td>1</td>
+                                <td>3</td>
+                                <td>8</td>
+                                <td>9:26</td>
+                                <td>-17</td>
+                                <td class="points">6</td>
+                            </tr>
+                            <tr class="relegation">
+                                <td>10</td>
+                                <td class="team-name">TSV Lesum</td>
+                                <td>12</td>
+                                <td>0</td>
+                                <td>3</td>
+                                <td>9</td>
+                                <td>8:30</td>
+                                <td>-22</td>
+                                <td class="points">3</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-legend">
+                    <span class="legend-item champion">🏆 Champions League Plätze</span>
+                    <span class="legend-item relegation">⬇️ Abstiegsplätze</span>
+                </div>
+            </section>
 
-  <main class="featured-grid">
-    <article class="card">
-      <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80" alt="Nutrition Tips">
-      <h2>Top 10 Marathon Nutrition Tips</h2>
-    </article>
-    <article class="card">
-      <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" alt="Bikepacking Routes">
-      <h2>Gravel Bikepacking Routes in Europe</h2>
-    </article>
-    <article class="card">
-      <img src="https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=400&q=80" alt="Training Guide">
-      <h2>Interval Training for Endurance</h2>
-    </article>
-    <article class="card">
-      <img src="https://images.unsplash.com/photo-1509228468518-c5eeecbff44a?auto=format&fit=crop&w=400&q=80" alt="Gear Review">
-      <h2>Best Shoes & Bikes for 2024</h2>
-    </article>
-  </main>
+            <!-- Latest Results -->
+            <section class="results-section" id="ergebnisse">
+                <h2>Spielergebnisse</h2>
+                
+                <!-- Filter Controls -->
+                <div class="filter-controls">
+                    <div class="filter-group">
+                        <label for="matchday-select">Spieltag:</label>
+                        <select id="matchday-select">
+                            <option value="all">Alle Spieltage</option>
+                            <option value="12" selected>12. Spieltag</option>
+                            <option value="11">11. Spieltag</option>
+                            <option value="10">10. Spieltag</option>
+                            <option value="9">9. Spieltag</option>
+                            <option value="8">8. Spieltag</option>
+                            <option value="7">7. Spieltag</option>
+                            <option value="6">6. Spieltag</option>
+                            <option value="5">5. Spieltag</option>
+                            <option value="4">4. Spieltag</option>
+                            <option value="3">3. Spieltag</option>
+                            <option value="2">2. Spieltag</option>
+                            <option value="1">1. Spieltag</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="team-select">Team:</label>
+                        <select id="team-select">
+                            <option value="all">Alle Teams</option>
+                            <option value="FC Werdersee">FC Werdersee</option>
+                            <option value="SV Neustadt">SV Neustadt</option>
+                            <option value="Bremer SV">Bremer SV</option>
+                            <option value="FC Vahr">FC Vahr</option>
+                            <option value="TSV Findorff">TSV Findorff</option>
+                            <option value="SG Aumund">SG Aumund</option>
+                            <option value="FC Borgfeld">FC Borgfeld</option>
+                            <option value="SV Grohn">SV Grohn</option>
+                            <option value="FC Schwachhausen">FC Schwachhausen</option>
+                            <option value="TSV Lesum">TSV Lesum</option>
+                        </select>
+                    </div>
+                </div>
 
-  <footer class="footer">
-    <p>&copy; 2024 Ride Far. Run Free.</p>
-  </footer>
+                <div class="results-grid" id="results-container">
+                    <!-- Matchday 12 -->
+                    <div class="matchday" data-matchday="12">
+                        <h3>12. Spieltag</h3>
+                        <div class="matches">
+                            <div class="match" data-home="FC Werdersee" data-away="SV Neustadt">
+                                <span class="team home">FC Werdersee</span>
+                                <span class="score">3:1</span>
+                                <span class="team away">SV Neustadt</span>
+                            </div>
+                            <div class="match" data-home="Bremer SV" data-away="FC Vahr">
+                                <span class="team home">Bremer SV</span>
+                                <span class="score">2:0</span>
+                                <span class="team away">FC Vahr</span>
+                            </div>
+                            <div class="match" data-home="TSV Findorff" data-away="SG Aumund">
+                                <span class="team home">TSV Findorff</span>
+                                <span class="score">1:1</span>
+                                <span class="team away">SG Aumund</span>
+                            </div>
+                            <div class="match" data-home="FC Borgfeld" data-away="SV Grohn">
+                                <span class="team home">FC Borgfeld</span>
+                                <span class="score">0:2</span>
+                                <span class="team away">SV Grohn</span>
+                            </div>
+                            <div class="match" data-home="FC Schwachhausen" data-away="TSV Lesum">
+                                <span class="team home">FC Schwachhausen</span>
+                                <span class="score">1:4</span>
+                                <span class="team away">TSV Lesum</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Matchday 11 -->
+                    <div class="matchday" data-matchday="11">
+                        <h3>11. Spieltag</h3>
+                        <div class="matches">
+                            <div class="match" data-home="SV Neustadt" data-away="Bremer SV">
+                                <span class="team home">SV Neustadt</span>
+                                <span class="score">2:1</span>
+                                <span class="team away">Bremer SV</span>
+                            </div>
+                            <div class="match" data-home="FC Vahr" data-away="TSV Findorff">
+                                <span class="team home">FC Vahr</span>
+                                <span class="score">3:2</span>
+                                <span class="team away">TSV Findorff</span>
+                            </div>
+                            <div class="match" data-home="SG Aumund" data-away="FC Borgfeld">
+                                <span class="team home">SG Aumund</span>
+                                <span class="score">1:0</span>
+                                <span class="team away">FC Borgfeld</span>
+                            </div>
+                            <div class="match" data-home="SV Grohn" data-away="FC Schwachhausen">
+                                <span class="team home">SV Grohn</span>
+                                <span class="score">2:2</span>
+                                <span class="team away">FC Schwachhausen</span>
+                            </div>
+                            <div class="match" data-home="TSV Lesum" data-away="FC Werdersee">
+                                <span class="team home">TSV Lesum</span>
+                                <span class="score">0:3</span>
+                                <span class="team away">FC Werdersee</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Matchday 10 -->
+                    <div class="matchday" data-matchday="10" style="display: none;">
+                        <h3>10. Spieltag</h3>
+                        <div class="matches">
+                            <div class="match" data-home="FC Werdersee" data-away="FC Borgfeld">
+                                <span class="team home">FC Werdersee</span>
+                                <span class="score">4:0</span>
+                                <span class="team away">FC Borgfeld</span>
+                            </div>
+                            <div class="match" data-home="Bremer SV" data-away="SG Aumund">
+                                <span class="team home">Bremer SV</span>
+                                <span class="score">1:1</span>
+                                <span class="team away">SG Aumund</span>
+                            </div>
+                            <div class="match" data-home="TSV Findorff" data-away="SV Grohn">
+                                <span class="team home">TSV Findorff</span>
+                                <span class="score">2:1</span>
+                                <span class="team away">SV Grohn</span>
+                            </div>
+                            <div class="match" data-home="FC Schwachhausen" data-away="FC Vahr">
+                                <span class="team home">FC Schwachhausen</span>
+                                <span class="score">0:3</span>
+                                <span class="team away">FC Vahr</span>
+                            </div>
+                            <div class="match" data-home="TSV Lesum" data-away="SV Neustadt">
+                                <span class="team home">TSV Lesum</span>
+                                <span class="score">1:2</span>
+                                <span class="team away">SV Neustadt</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Matchday 9 -->
+                    <div class="matchday" data-matchday="9" style="display: none;">
+                        <h3>9. Spieltag</h3>
+                        <div class="matches">
+                            <div class="match" data-home="SV Neustadt" data-away="FC Schwachhausen">
+                                <span class="team home">SV Neustadt</span>
+                                <span class="score">3:0</span>
+                                <span class="team away">FC Schwachhausen</span>
+                            </div>
+                            <div class="match" data-home="FC Vahr" data-away="TSV Lesum">
+                                <span class="team home">FC Vahr</span>
+                                <span class="score">2:1</span>
+                                <span class="team away">TSV Lesum</span>
+                            </div>
+                            <div class="match" data-home="SV Grohn" data-away="FC Werdersee">
+                                <span class="team home">SV Grohn</span>
+                                <span class="score">0:2</span>
+                                <span class="team away">FC Werdersee</span>
+                            </div>
+                            <div class="match" data-home="FC Borgfeld" data-away="TSV Findorff">
+                                <span class="team home">FC Borgfeld</span>
+                                <span class="score">1:1</span>
+                                <span class="team away">TSV Findorff</span>
+                            </div>
+                            <div class="match" data-home="SG Aumund" data-away="Bremer SV">
+                                <span class="team home">SG Aumund</span>
+                                <span class="score">0:1</span>
+                                <span class="team away">Bremer SV</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Teams Section -->
+            <section class="teams-section" id="teams">
+                <h2>Unsere Teams</h2>
+                <div class="teams-grid">
+                    <div class="team-card">
+                        <div class="team-logo">⚽</div>
+                        <h3>FC Werdersee</h3>
+                        <p class="team-position">1. Platz · 31 Punkte</p>
+                        <p class="team-description">Tabellenführer mit starker Offensive</p>
+                        <a href="teams/fc-werdersee.html" class="team-link">Team kennenlernen</a>
+                    </div>
+                    
+                    <div class="team-card">
+                        <div class="team-logo">⚽</div>
+                        <h3>SV Neustadt</h3>
+                        <p class="team-position">2. Platz · 26 Punkte</p>
+                        <p class="team-description">Erfahrenes Team mit starker Defensive</p>
+                        <a href="teams/sv-neustadt.html" class="team-link">Team kennenlernen</a>
+                    </div>
+                    
+                    <div class="team-card">
+                        <div class="team-logo">⚽</div>
+                        <h3>Bremer SV</h3>
+                        <p class="team-position">3. Platz · 24 Punkte</p>
+                        <p class="team-description">Traditioneller Verein mit jungen Talenten</p>
+                        <a href="teams/bremer-sv.html" class="team-link">Team kennenlernen</a>
+                    </div>
+                    
+                    <div class="team-card">
+                        <div class="team-logo">⚽</div>
+                        <h3>FC Vahr</h3>
+                        <p class="team-position">4. Platz · 20 Punkte</p>
+                        <p class="team-description">Kampfstarkes Team aus dem Stadtteil</p>
+                        <a href="teams/fc-vahr.html" class="team-link">Team kennenlernen</a>
+                    </div>
+                    
+                    <div class="team-card">
+                        <div class="team-logo">⚽</div>
+                        <h3>TSV Findorff</h3>
+                        <p class="team-position">5. Platz · 18 Punkte</p>
+                        <p class="team-description">Solide Mittelfeldmannschaft</p>
+                        <a href="teams/tsv-findorff.html" class="team-link">Team kennenlernen</a>
+                    </div>
+                    
+                    <div class="team-card">
+                        <div class="team-logo">⚽</div>
+                        <h3>SG Aumund</h3>
+                        <p class="team-position">6. Platz · 16 Punkte</p>
+                        <p class="team-description">Aufstrebende Spielgemeinschaft</p>
+                        <a href="teams/sg-aumund.html" class="team-link">Team kennenlernen</a>
+                    </div>
+                    
+                    <div class="team-card">
+                        <div class="team-logo">⚽</div>
+                        <h3>FC Borgfeld</h3>
+                        <p class="team-position">7. Platz · 12 Punkte</p>
+                        <p class="team-description">Kämpferisches Team mit Herz</p>
+                        <a href="teams/fc-borgfeld.html" class="team-link">Team kennenlernen</a>
+                    </div>
+                    
+                    <div class="team-card">
+                        <div class="team-logo">⚽</div>
+                        <h3>SV Grohn</h3>
+                        <p class="team-position">8. Platz · 10 Punkte</p>
+                        <p class="team-description">Unentschieden-Spezialisten</p>
+                        <a href="teams/sv-grohn.html" class="team-link">Team kennenlernen</a>
+                    </div>
+                    
+                    <div class="team-card">
+                        <div class="team-logo">⚽</div>
+                        <h3>FC Schwachhausen</h3>
+                        <p class="team-position">9. Platz · 6 Punkte</p>
+                        <p class="team-description">Junge Mannschaft im Aufbau</p>
+                        <a href="teams/fc-schwachhausen.html" class="team-link">Team kennenlernen</a>
+                    </div>
+                    
+                    <div class="team-card">
+                        <div class="team-logo">⚽</div>
+                        <h3>TSV Lesum</h3>
+                        <p class="team-position">10. Platz · 3 Punkte</p>
+                        <p class="team-description">Neues Team mit viel Potential</p>
+                        <a href="teams/tsv-lesum.html" class="team-link">Team kennenlernen</a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Wilde Liga Bremen. Alle Rechte vorbehalten.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize page with dynamic data
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Load dynamic data
+            await loadStandings();
+            await loadResults();
+            await loadTeams();
+            
+            // Initialize filter functionality
+            initializeFilters();
+        });
+
+        // Load standings from database
+        async function loadStandings() {
+            try {
+                const standings = await WildeLigaAPI.getStandings();
+                const tableBody = document.querySelector('.league-table tbody');
+                
+                if (standings && standings.length > 0) {
+                    tableBody.innerHTML = '';
+                    
+                    standings.forEach((team, index) => {
+                        const position = index + 1;
+                        const isChampion = position <= 3;
+                        const isRelegation = position >= 8;
+                        
+                        const row = `
+                            <tr class="${isChampion ? 'champion' : ''} ${isRelegation ? 'relegation' : ''}">
+                                <td>${position}</td>
+                                <td class="team-name">${team.name}</td>
+                                <td>${team.games_played}</td>
+                                <td>${team.wins}</td>
+                                <td>${team.draws}</td>
+                                <td>${team.losses}</td>
+                                <td>${team.goals_for}:${team.goals_against}</td>
+                                <td>${team.goal_difference > 0 ? '+' : ''}${team.goal_difference}</td>
+                                <td class="points">${team.points}</td>
+                            </tr>
+                        `;
+                        tableBody.innerHTML += row;
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading standings:', error);
+            }
+        }
+
+        // Load results from database
+        async function loadResults() {
+            try {
+                const matches = await WildeLigaAPI.getAllMatches();
+                const resultsContainer = document.getElementById('results-container');
+                
+                if (matches && matches.length > 0) {
+                    // Group matches by matchday
+                    const matchesByMatchday = {};
+                    matches.forEach(match => {
+                        if (!matchesByMatchday[match.matchday]) {
+                            matchesByMatchday[match.matchday] = [];
+                        }
+                        matchesByMatchday[match.matchday].push(match);
+                    });
+                    
+                    resultsContainer.innerHTML = '';
+                    
+                    // Create HTML for each matchday
+                    Object.keys(matchesByMatchday)
+                        .sort((a, b) => b - a) // Sort descending
+                        .forEach(matchday => {
+                            const isLatest = matchday == Math.max(...Object.keys(matchesByMatchday));
+                            const matchdayHtml = `
+                                <div class="matchday" data-matchday="${matchday}" ${!isLatest ? 'style="display: none;"' : ''}>
+                                    <h3>${matchday}. Spieltag</h3>
+                                    <div class="matches">
+                                        ${matchesByMatchday[matchday].map(match => `
+                                            <div class="match" data-home="${match.home_team.name}" data-away="${match.away_team.name}">
+                                                <span class="team home">${match.home_team.name}</span>
+                                                <span class="score">${match.home_score}:${match.away_score}</span>
+                                                <span class="team away">${match.away_team.name}</span>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `;
+                            resultsContainer.innerHTML += matchdayHtml;
+                        });
+                }
+            } catch (error) {
+                console.error('Error loading results:', error);
+            }
+        }
+
+        // Load teams from database
+        async function loadTeams() {
+            try {
+                const teams = await WildeLigaAPI.getTeams();
+                const standings = await WildeLigaAPI.getStandings();
+                const teamsGrid = document.querySelector('.teams-grid');
+                
+                if (teams && teams.length > 0) {
+                    teamsGrid.innerHTML = '';
+                    
+                    teams.forEach(team => {
+                        // Find team position in standings
+                        const standingInfo = standings.find(s => s.name === team.name);
+                        const position = standingInfo ? standings.indexOf(standingInfo) + 1 : '-';
+                        const points = standingInfo ? standingInfo.points : 0;
+                        
+                        const teamHtml = `
+                            <div class="team-card">
+                                <div class="team-logo">⚽</div>
+                                <h3>${team.name}</h3>
+                                <p class="team-position">${position}. Platz · ${points} Punkte</p>
+                                <p class="team-description">${team.description}</p>
+                                <a href="teams/${team.name.toLowerCase().replace(/\s+/g, '-')}.html" class="team-link">Team kennenlernen</a>
+                            </div>
+                        `;
+                        teamsGrid.innerHTML += teamHtml;
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading teams:', error);
+            }
+        }
+
+        // Initialize filter functionality
+        function initializeFilters() {
+            const matchdaySelect = document.getElementById('matchday-select');
+            const teamSelect = document.getElementById('team-select');
+            const resultsContainer = document.getElementById('results-container');
+            
+            function filterResults() {
+                const selectedMatchday = matchdaySelect.value;
+                const selectedTeam = teamSelect.value;
+                
+                // Get all matchdays
+                const matchdays = resultsContainer.querySelectorAll('.matchday');
+                
+                matchdays.forEach(matchday => {
+                    const matchdayNumber = matchday.getAttribute('data-matchday');
+                    let showMatchday = false;
+                    
+                    // Check if matchday should be shown
+                    if (selectedMatchday === 'all' || selectedMatchday === matchdayNumber) {
+                        if (selectedTeam === 'all') {
+                            showMatchday = true;
+                        } else {
+                            // Check if selected team plays in this matchday
+                            const matches = matchday.querySelectorAll('.match');
+                            matches.forEach(match => {
+                                const homeTeam = match.getAttribute('data-home');
+                                const awayTeam = match.getAttribute('data-away');
+                                
+                                if (homeTeam === selectedTeam || awayTeam === selectedTeam) {
+                                    showMatchday = true;
+                                }
+                            });
+                        }
+                    }
+                    
+                    // Show/hide matchday
+                    matchday.style.display = showMatchday ? 'block' : 'none';
+                    
+                    // If team filter is active, highlight matches with the selected team
+                    if (selectedTeam !== 'all' && showMatchday) {
+                        const matches = matchday.querySelectorAll('.match');
+                        matches.forEach(match => {
+                            const homeTeam = match.getAttribute('data-home');
+                            const awayTeam = match.getAttribute('data-away');
+                            
+                            if (homeTeam === selectedTeam || awayTeam === selectedTeam) {
+                                match.style.display = 'grid';
+                                match.style.backgroundColor = '#e8f5e8';
+                                match.style.border = '2px solid var(--primary-color)';
+                            } else {
+                                match.style.display = 'none';
+                            }
+                        });
+                    } else if (showMatchday) {
+                        // Reset match styling when no team filter
+                        const matches = matchday.querySelectorAll('.match');
+                        matches.forEach(match => {
+                            match.style.display = 'grid';
+                            match.style.backgroundColor = '';
+                            match.style.border = '';
+                        });
+                    }
+                });
+                
+                // Update grid layout based on filter
+                if (selectedMatchday !== 'all') {
+                    resultsContainer.style.gridTemplateColumns = '1fr';
+                } else {
+                    resultsContainer.style.gridTemplateColumns = 'repeat(auto-fit, minmax(300px, 1fr))';
+                }
+            }
+            
+            // Add event listeners
+            matchdaySelect.addEventListener('change', filterResults);
+            teamSelect.addEventListener('change', filterResults);
+            
+            // Initial filter
+            filterResults();
+        }
+    </script>
 </body>
 </html>
