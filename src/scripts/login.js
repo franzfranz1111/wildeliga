@@ -1,7 +1,15 @@
 // Login System for Wilde Liga Bremen
 class LoginSystem {
     constructor() {
-        this.supabase = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
+        // Debug: Check if CONFIG exists
+        if (!window.CONFIG) {
+            console.error('CONFIG not found! Make sure config.js is loaded.');
+            this.showAlert('Fehler', 'Konfiguration nicht gefunden.', 'error');
+            return;
+        }
+        
+        console.log('CONFIG loaded:', window.CONFIG);
+        this.supabase = window.supabase.createClient(window.CONFIG.supabaseUrl, window.CONFIG.supabaseKey);
         this.currentUser = null;
         this.initializeEventListeners();
         this.checkAuthStatus();
@@ -52,16 +60,21 @@ class LoginSystem {
         this.showLoading(true);
 
         try {
+            console.log('Attempting login with:', email);
             const { data, error } = await this.supabase.auth.signInWithPassword({
                 email: email,
                 password: password
             });
 
+            console.log('Login response:', { data, error });
+
             if (error) {
+                console.error('Login error details:', error);
                 throw error;
             }
 
             this.currentUser = data.user;
+            console.log('Login successful, user:', this.currentUser);
             this.showAlert('Erfolgreich', 'Erfolgreich angemeldet!', 'success');
             
             // Redirect after short delay
@@ -77,6 +90,8 @@ class LoginSystem {
                 errorMessage = 'E-Mail oder Passwort ist falsch.';
             } else if (error.message === 'Email not confirmed') {
                 errorMessage = 'Bitte bestätige deine E-Mail-Adresse.';
+            } else if (error.message.includes('fetch')) {
+                errorMessage = 'Verbindung zur Datenbank fehlgeschlagen. Prüfe die Konfiguration.';
             }
             
             this.showAlert('Fehler', errorMessage, 'error');
