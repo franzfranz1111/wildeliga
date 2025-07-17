@@ -1,0 +1,281 @@
+/* Team Page Specific Styles */
+
+/* Team Hero Section */
+.team-hero {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: var(--white);
+  padding: 3rem 0;
+  margin-bottom: 2rem;
+  border-radius: 10px;
+}
+
+.team-info {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.team-logo-large {
+  font-size: 8rem;
+  opacity: 0.9;
+}
+
+.team-details h1 {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.team-motto {
+  font-size: 1.2rem;
+  font-style: italic;
+  opacity: 0.9;
+  margin-bottom: 2rem;
+}
+
+.team-stats {
+  display: flex;
+  gap: 2rem;
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--accent-color);
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+/* Team Description */
+.team-description {
+  background: var(--white);
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+}
+
+.team-description h2 {
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+}
+
+.team-description p {
+  margin-bottom: 1.5rem;
+  line-height: 1.7;
+  color: #555;
+}
+
+.team-description p:last-child {
+  margin-bottom: 0;
+}
+
+/* Squad Section */
+.team-squad {
+  background: var(--white);
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+}
+
+.team-squad h2 {
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+}
+
+.squad-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.player-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--bg-color);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+}
+
+.player-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.player-number {
+  background: var(--primary-color);
+  color: var(--white);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.player-info h3 {
+  margin: 0 0 0.25rem 0;
+  color: var(--primary-color);
+  font-size: 1.1rem;
+}
+
+.player-info p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Achievements Section */
+.team-achievements {
+  background: var(--white);
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+}
+
+.team-achievements h2 {
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+}
+
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.achievement {
+  text-align: center;
+  padding: 1.5rem;
+  background: var(--bg-color);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.achievement-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.achievement h3 {
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.achievement p {
+  color: var(--accent-color);
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Contact Section */
+.team-contact {
+  background: var(--white);
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+}
+
+.team-contact h2 {
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+}
+
+.contact-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.contact-item {
+  padding: 1rem;
+  background: var(--bg-color);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.contact-item strong {
+  color: var(--primary-color);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+/* Responsive Design for Team Pages */
+@media (max-width: 768px) {
+  .team-info {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .team-logo-large {
+    font-size: 5rem;
+  }
+  
+  .team-details h1 {
+    font-size: 2rem;
+  }
+  
+  .team-stats {
+    justify-content: center;
+  }
+  
+  .squad-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .achievements-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+  
+  .contact-info {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .team-hero {
+    padding: 2rem 0;
+  }
+  
+  .team-logo-large {
+    font-size: 4rem;
+  }
+  
+  .team-details h1 {
+    font-size: 1.8rem;
+  }
+  
+  .team-stats {
+    gap: 1rem;
+  }
+  
+  .stat-number {
+    font-size: 1.5rem;
+  }
+  
+  .achievements-grid {
+    grid-template-columns: 1fr;
+  }
+}

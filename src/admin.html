@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Wilde Liga Bremen</title>
+    <link rel="stylesheet" href="styles/wilde-liga.css">
+    <link rel="stylesheet" href="styles/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+</head>
+<body>
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h2>Admin Login</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">E-Mail:</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Passwort:</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="btn-primary">Anmelden</button>
+                <div id="loginError" class="error-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" style="display: none;">
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="container">
+                <div class="admin-logo">
+                    <h1>⚽ Wilde Liga Bremen - Admin</h1>
+                </div>
+                <div class="admin-nav">
+                    <button id="logoutBtn" class="btn-secondary">Abmelden</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <div class="container">
+                <!-- Navigation Tabs -->
+                <div class="admin-tabs">
+                    <button class="tab-btn active" data-tab="teams">Teams</button>
+                    <button class="tab-btn" data-tab="players">Spieler</button>
+                    <button class="tab-btn" data-tab="matches">Spiele</button>
+                    <button class="tab-btn" data-tab="achievements">Erfolge</button>
+                </div>
+
+                <!-- Teams Management -->
+                <div id="teamsTab" class="tab-content active">
+                    <div class="admin-section">
+                        <div class="section-header">
+                            <h2>Teams verwalten</h2>
+                            <button id="addTeamBtn" class="btn-primary">Neues Team</button>
+                        </div>
+                        
+                        <div class="teams-grid" id="teamsGrid">
+                            <!-- Teams will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Players Management -->
+                <div id="playersTab" class="tab-content">
+                    <div class="admin-section">
+                        <div class="section-header">
+                            <h2>Spieler verwalten</h2>
+                            <button id="addPlayerBtn" class="btn-primary">Neuer Spieler</button>
+                        </div>
+                        
+                        <div class="filter-section">
+                            <select id="playerTeamFilter">
+                                <option value="all">Alle Teams</option>
+                            </select>
+                        </div>
+                        
+                        <div class="players-list" id="playersList">
+                            <!-- Players will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Matches Management -->
+                <div id="matchesTab" class="tab-content">
+                    <div class="admin-section">
+                        <div class="section-header">
+                            <h2>Spiele verwalten</h2>
+                            <button id="addMatchBtn" class="btn-primary">Neues Spiel</button>
+                        </div>
+                        
+                        <div class="matches-list" id="matchesList">
+                            <!-- Matches will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Achievements Management -->
+                <div id="achievementsTab" class="tab-content">
+                    <div class="admin-section">
+                        <div class="section-header">
+                            <h2>Erfolge verwalten</h2>
+                            <button id="addAchievementBtn" class="btn-primary">Neuer Erfolg</button>
+                        </div>
+                        
+                        <div class="achievements-list" id="achievementsList">
+                            <!-- Achievements will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Team Modal -->
+    <div id="teamModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="teamModalTitle">Team bearbeiten</h2>
+                <button class="close-btn" onclick="closeModal('teamModal')">&times;</button>
+            </div>
+            <form id="teamForm">
+                <input type="hidden" id="teamId">
+                <div class="form-group">
+                    <label for="teamName">Team Name:</label>
+                    <input type="text" id="teamName" required>
+                </div>
+                <div class="form-group">
+                    <label for="teamShortName">Kürzel:</label>
+                    <input type="text" id="teamShortName" maxlength="20">
+                </div>
+                <div class="form-group">
+                    <label for="teamDescription">Beschreibung:</label>
+                    <textarea id="teamDescription" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="teamStadium">Stadion:</label>
+                    <input type="text" id="teamStadium">
+                </div>
+                <div class="form-group">
+                    <label for="teamCoach">Trainer:</label>
+                    <input type="text" id="teamCoach">
+                </div>
+                <div class="form-group">
+                    <label for="teamEmail">E-Mail:</label>
+                    <input type="email" id="teamEmail">
+                </div>
+                <div class="form-group">
+                    <label for="teamTraining">Trainingszeiten:</label>
+                    <input type="text" id="teamTraining">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('teamModal')">Abbrechen</button>
+                    <button type="submit" class="btn-primary">Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Player Modal -->
+    <div id="playerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="playerModalTitle">Spieler bearbeiten</h2>
+                <button class="close-btn" onclick="closeModal('playerModal')">&times;</button>
+            </div>
+            <form id="playerForm">
+                <input type="hidden" id="playerId">
+                <div class="form-group">
+                    <label for="playerTeam">Team:</label>
+                    <select id="playerTeam" required>
+                        <option value="">Team wählen</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="playerName">Name:</label>
+                    <input type="text" id="playerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="playerPosition">Position:</label>
+                    <select id="playerPosition">
+                        <option value="Torwart">Torwart</option>
+                        <option value="Verteidiger">Verteidiger</option>
+                        <option value="Mittelfeld">Mittelfeld</option>
+                        <option value="Spielmacher">Spielmacher</option>
+                        <option value="Stürmer">Stürmer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="playerNumber">Trikotnummer:</label>
+                    <input type="number" id="playerNumber" min="1" max="99">
+                </div>
+                <div class="form-group">
+                    <label for="playerAge">Alter:</label>
+                    <input type="number" id="playerAge" min="16" max="50">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('playerModal')">Abbrechen</button>
+                    <button type="submit" class="btn-primary">Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Match Modal -->
+    <div id="matchModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="matchModalTitle">Spiel bearbeiten</h2>
+                <button class="close-btn" onclick="closeModal('matchModal')">&times;</button>
+            </div>
+            <form id="matchForm">
+                <input type="hidden" id="matchId">
+                <div class="form-group">
+                    <label for="matchHomeTeam">Heimteam:</label>
+                    <select id="matchHomeTeam" required>
+                        <option value="">Team wählen</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="matchAwayTeam">Auswärtsteam:</label>
+                    <select id="matchAwayTeam" required>
+                        <option value="">Team wählen</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="matchHomeScore">Tore Heimteam:</label>
+                    <input type="number" id="matchHomeScore" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="matchAwayScore">Tore Auswärtsteam:</label>
+                    <input type="number" id="matchAwayScore" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="matchDay">Spieltag:</label>
+                    <input type="number" id="matchDay" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="matchDate">Datum:</label>
+                    <input type="date" id="matchDate" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('matchModal')">Abbrechen</button>
+                    <button type="submit" class="btn-primary">Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="scripts/admin.js"></script>
+</body>
+</html>
