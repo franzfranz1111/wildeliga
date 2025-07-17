@@ -77,6 +77,17 @@ body {
   background: rgba(255, 255, 255, 0.2);
 }
 
+.nav .login-link {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-weight: 600;
+}
+
+.nav .login-link:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
 /* Main Content */
 .main-content {
   padding: 2rem 0;
