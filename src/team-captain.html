@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teamkapitän - Wilde Liga Bremen</title>
+    <link rel="stylesheet" href="styles/team-captain.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <h1>⚽ Wilde Liga Bremen</h1>
+                <p>Teamkapitän-Bereich</p>
+            </div>
+            <div class="user-info">
+                <span id="user-name">Wird geladen...</span>
+                <span id="team-name">Wird geladen...</span>
+                <button id="logout-btn" class="logout-btn">Abmelden</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav-tabs">
+        <div class="container">
+            <button class="nav-tab active" onclick="showTab('team-info')">Team-Info</button>
+            <button class="nav-tab" onclick="showTab('matches')">Spielergebnisse</button>
+            <button class="nav-tab" onclick="showTab('players')">Spieler</button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            
+            <!-- Team Info Tab -->
+            <div id="team-info-tab" class="tab-content active">
+                <div class="section-header">
+                    <h2>Team-Informationen</h2>
+                    <p>Bearbeite die Informationen deines Teams</p>
+                </div>
+
+                <div class="card">
+                    <form id="team-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="team-name-input">Team-Name</label>
+                                <input type="text" id="team-name-input" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="team-short-name">Kürzel</label>
+                                <input type="text" id="team-short-name" readonly>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="team-description">Beschreibung</label>
+                            <textarea id="team-description" rows="3" placeholder="Beschreibe dein Team..."></textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="team-stadium">Stadion</label>
+                                <input type="text" id="team-stadium" placeholder="Stadion-Name">
+                            </div>
+                            <div class="form-group">
+                                <label for="team-coach">Trainer</label>
+                                <input type="text" id="team-coach" placeholder="Trainer-Name">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="team-email">E-Mail</label>
+                                <input type="email" id="team-email" placeholder="team@example.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="team-colors">Vereinsfarben</label>
+                                <input type="text" id="team-colors" placeholder="z.B. Grün-Weiß">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="team-training-days">Trainingszeiten</label>
+                            <input type="text" id="team-training-days" placeholder="z.B. Dienstag & Donnerstag 19:00 Uhr">
+                        </div>
+                        
+                        <button type="submit" class="save-btn">Änderungen speichern</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Matches Tab -->
+            <div id="matches-tab" class="tab-content">
+                <div class="section-header">
+                    <h2>Spielergebnisse</h2>
+                    <p>Trage die Ergebnisse deiner Spiele ein</p>
+                </div>
+
+                <div class="matches-grid">
+                    <div class="card">
+                        <h3>Kommende Spiele</h3>
+                        <div id="upcoming-matches" class="matches-list">
+                            <!-- Wird per JavaScript gefüllt -->
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Letzte Spiele</h3>
+                        <div id="recent-matches" class="matches-list">
+                            <!-- Wird per JavaScript gefüllt -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Players Tab -->
+            <div id="players-tab" class="tab-content">
+                <div class="section-header">
+                    <h2>Spieler-Verwaltung</h2>
+                    <p>Verwalte die Spieler deines Teams</p>
+                    <button id="add-player-btn" class="add-btn">Neuer Spieler</button>
+                </div>
+
+                <div class="card">
+                    <div class="table-container">
+                        <table id="players-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Position</th>
+                                    <th>Nummer</th>
+                                    <th>Alter</th>
+                                    <th>Aktionen</th>
+                                </tr>
+                            </thead>
+                            <tbody id="players-tbody">
+                                <!-- Wird per JavaScript gefüllt -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Match Result Modal -->
+    <div id="match-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Spielergebnis eintragen</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="match-form">
+                <div class="form-group">
+                    <label>Spiel</label>
+                    <div id="match-info" class="match-info"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="home-score">Heimteam Tore</label>
+                        <input type="number" id="home-score" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="away-score">Auswärtsteam Tore</label>
+                        <input type="number" id="away-score" min="0" required>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" onclick="closeModal()">Abbrechen</button>
+                    <button type="submit" class="save-btn">Ergebnis speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Player Modal -->
+    <div id="player-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="player-modal-title">Spieler hinzufügen</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="player-form">
+                <div class="form-group">
+                    <label for="player-name">Name</label>
+                    <input type="text" id="player-name" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="player-position">Position</label>
+                        <select id="player-position">
+                            <option value="Torwart">Torwart</option>
+                            <option value="Verteidiger">Verteidiger</option>
+                            <option value="Mittelfeld">Mittelfeld</option>
+                            <option value="Spielmacher">Spielmacher</option>
+                            <option value="Stürmer">Stürmer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="player-number">Rückennummer</label>
+                        <input type="number" id="player-number" min="1" max="99">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="player-age">Alter</label>
+                    <input type="number" id="player-age" min="16" max="50">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" onclick="closeModal()">Abbrechen</button>
+                    <button type="submit" class="save-btn">Spieler speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Wird geladen...</p>
+        </div>
+    </div>
+
+    <!-- Alert Container -->
+    <div id="alert-container" class="alert-container"></div>
+
+    <script src="scripts/team-captain.js"></script>
+</body>
+</html>

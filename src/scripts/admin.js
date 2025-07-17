@@ -3,6 +3,7 @@
 let currentUser = null;
 let teams = [];
 let players = [];
+let users = [];
 
 // Initialize admin interface
 document.addEventListener('DOMContentLoaded', function() {
@@ -51,14 +52,20 @@ function initializeEventListeners() {
     document.getElementById('addTeamBtn').addEventListener('click', () => openTeamModal());
     document.getElementById('addPlayerBtn').addEventListener('click', () => openPlayerModal());
     document.getElementById('addMatchBtn').addEventListener('click', () => openMatchModal());
+    document.getElementById('addUserBtn').addEventListener('click', () => openUserModal());
     
     // Forms
     document.getElementById('teamForm').addEventListener('submit', handleTeamSubmit);
     document.getElementById('playerForm').addEventListener('submit', handlePlayerSubmit);
     document.getElementById('matchForm').addEventListener('submit', handleMatchSubmit);
+    document.getElementById('userForm').addEventListener('submit', handleUserSubmit);
     
     // Filter
     document.getElementById('playerTeamFilter').addEventListener('change', filterPlayers);
+    document.getElementById('userRoleFilter').addEventListener('change', filterUsers);
+    
+    // Role selection handler
+    document.getElementById('userRole').addEventListener('change', handleRoleChange);
 }
 
 // Login/Logout
@@ -114,6 +121,9 @@ function switchTab(tabName) {
             break;
         case 'matches':
             loadMatches();
+            break;
+        case 'users':
+            loadUsers();
             break;
         case 'achievements':
             loadAchievements();
@@ -531,6 +541,232 @@ async function loadAchievements() {
     console.log('Loading achievements...');
 }
 
+// User Management
+async function loadUsers() {
+    try {
+        const { data, error } = await supabase
+            .from('user_profiles')
+            .select(`
+                *,
+                team:team_id(name)
+            `)
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        users = data || [];
+        renderUsers();
+    } catch (error) {
+        console.error('Error loading users:', error);
+        showErrorMessage('Fehler beim Laden der Benutzer');
+    }
+}
+
+function renderUsers() {
+    const tbody = document.getElementById('usersTableBody');
+    tbody.innerHTML = '';
+    
+    const roleFilter = document.getElementById('userRoleFilter').value;
+    let filteredUsers = users;
+    
+    if (roleFilter !== 'all') {
+        filteredUsers = users.filter(user => user.role === roleFilter);
+    }
+    
+    if (filteredUsers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Keine Benutzer gefunden</td></tr>';
+        return;
+    }
+    
+    filteredUsers.forEach(user => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${user.name || '-'}</td>
+            <td>${user.email}</td>
+            <td><span class="role-badge ${user.role}">${getRoleDisplayName(user.role)}</span></td>
+            <td>${user.team?.name || '-'}</td>
+            <td>${new Date(user.created_at).toLocaleDateString('de-DE')}</td>
+            <td>
+                <div class="user-actions">
+                    <button class="btn-small btn-edit" onclick="editUser('${user.id}')">Bearbeiten</button>
+                    <button class="btn-small btn-delete" onclick="deleteUser('${user.id}')">Löschen</button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function getRoleDisplayName(role) {
+    switch (role) {
+        case 'admin': return 'Admin';
+        case 'team_captain': return 'Teamkapitän';
+        case 'user': return 'Benutzer';
+        default: return role;
+    }
+}
+
+function openUserModal(userId = null) {
+    const modal = document.getElementById('userModal');
+    const title = document.getElementById('userModalTitle');
+    const form = document.getElementById('userForm');
+    
+    if (userId) {
+        const user = users.find(u => u.id === userId);
+        title.textContent = 'Benutzer bearbeiten';
+        
+        // Fill form with user data
+        document.getElementById('userId').value = user.id;
+        document.getElementById('userName').value = user.name || '';
+        document.getElementById('userEmail').value = user.email;
+        document.getElementById('userPassword').value = '';
+        document.getElementById('userRole').value = user.role;
+        document.getElementById('userTeam').value = user.team_id || '';
+        
+        // Show/hide team selection
+        handleRoleChange();
+    } else {
+        title.textContent = 'Neuer Benutzer';
+        form.reset();
+        document.getElementById('userId').value = '';
+        document.getElementById('userRole').value = 'user';
+        handleRoleChange();
+    }
+    
+    modal.style.display = 'block';
+}
+
+function handleRoleChange() {
+    const role = document.getElementById('userRole').value;
+    const teamGroup = document.getElementById('teamSelectGroup');
+    
+    if (role === 'team_captain') {
+        teamGroup.classList.add('show');
+    } else {
+        teamGroup.classList.remove('show');
+        document.getElementById('userTeam').value = '';
+    }
+}
+
+function editUser(userId) {
+    openUserModal(userId);
+}
+
+async function deleteUser(userId) {
+    if (!confirm('Benutzer wirklich löschen?')) return;
+    
+    try {
+        // Delete from auth.users (will cascade to user_profiles)
+        const { error } = await supabase.auth.admin.deleteUser(userId);
+        
+        if (error) throw error;
+        
+        await loadUsers();
+        showSuccessMessage('Benutzer erfolgreich gelöscht');
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        showErrorMessage('Fehler beim Löschen des Benutzers');
+    }
+}
+
+async function handleUserSubmit(e) {
+    e.preventDefault();
+    
+    const userId = document.getElementById('userId').value;
+    const isEdit = !!userId;
+    
+    const userData = {
+        name: document.getElementById('userName').value,
+        email: document.getElementById('userEmail').value,
+        role: document.getElementById('userRole').value,
+        team_id: document.getElementById('userTeam').value || null
+    };
+    
+    const password = document.getElementById('userPassword').value;
+    
+    try {
+        if (isEdit) {
+            // Update existing user
+            const { error: profileError } = await supabase
+                .from('user_profiles')
+                .update(userData)
+                .eq('id', userId);
+            
+            if (profileError) throw profileError;
+            
+            // Update password if provided
+            if (password) {
+                const { error: authError } = await supabase.auth.admin.updateUserById(userId, {
+                    password: password
+                });
+                
+                if (authError) throw authError;
+            }
+        } else {
+            // Create new user
+            if (!password) {
+                throw new Error('Passwort ist erforderlich für neue Benutzer');
+            }
+            
+            const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+                email: userData.email,
+                password: password,
+                user_metadata: {
+                    name: userData.name
+                }
+            });
+            
+            if (authError) throw authError;
+            
+            // Update profile with role and team
+            const { error: profileError } = await supabase
+                .from('user_profiles')
+                .update({
+                    role: userData.role,
+                    team_id: userData.team_id,
+                    name: userData.name
+                })
+                .eq('id', authData.user.id);
+            
+            if (profileError) throw profileError;
+        }
+        
+        closeModal('userModal');
+        await loadUsers();
+        showSuccessMessage(isEdit ? 'Benutzer erfolgreich aktualisiert' : 'Benutzer erfolgreich erstellt');
+    } catch (error) {
+        console.error('Error saving user:', error);
+        showErrorMessage('Fehler beim Speichern des Benutzers: ' + error.message);
+    }
+}
+
+function filterUsers() {
+    renderUsers();
+}
+
+// Update loadTeamOptions to include user team dropdown
+async function loadTeamOptions() {
+    const selects = ['playerTeam', 'playerTeamFilter', 'matchHomeTeam', 'matchAwayTeam', 'userTeam'];
+    
+    selects.forEach(selectId => {
+        const select = document.getElementById(selectId);
+        if (select) {
+            // Clear existing options (except first one)
+            while (select.children.length > 1) {
+                select.removeChild(select.lastChild);
+            }
+            
+            // Add team options
+            teams.forEach(team => {
+                const option = document.createElement('option');
+                option.value = team.id;
+                option.textContent = team.name;
+                select.appendChild(option);
+            });
+        }
+    });
+}
+
 // Global functions for onclick handlers
 window.editTeam = editTeam;
 window.deleteTeam = deleteTeam;
@@ -555,4 +791,6 @@ window.deleteMatch = async function(matchId) {
         }
     }
 };
+window.editUser = editUser;
+window.deleteUser = deleteUser;
 window.closeModal = closeModal;

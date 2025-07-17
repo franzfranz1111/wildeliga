@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Wilde Liga Bremen</title>
+    <link rel="stylesheet" href="styles/login.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>⚽ Wilde Liga Bremen</h1>
+            <p>Anmelden zum Verwaltungsbereich</p>
+        </div>
+
+        <div class="login-form-container">
+            <div class="login-tabs">
+                <button class="tab-button active" onclick="showTab('login')">Anmelden</button>
+                <button class="tab-button" onclick="showTab('register')">Registrieren</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-tab" class="tab-content active">
+                <form id="login-form" class="login-form">
+                    <div class="form-group">
+                        <label for="login-email">E-Mail</label>
+                        <input type="email" id="login-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Passwort</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+                    <button type="submit" class="login-button">Anmelden</button>
+                </form>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-tab" class="tab-content">
+                <form id="register-form" class="login-form">
+                    <div class="form-group">
+                        <label for="register-name">Name</label>
+                        <input type="text" id="register-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">E-Mail</label>
+                        <input type="email" id="register-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Passwort</label>
+                        <input type="password" id="register-password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password-confirm">Passwort bestätigen</label>
+                        <input type="password" id="register-password-confirm" required>
+                    </div>
+                    <button type="submit" class="login-button">Registrieren</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="login-info">
+            <p>Benötigst du Zugang? Wende dich an den Administrator.</p>
+        </div>
+
+        <div class="login-footer">
+            <a href="index.html">← Zurück zur Startseite</a>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Wird geladen...</p>
+        </div>
+    </div>
+
+    <!-- Alert Container -->
+    <div id="alert-container" class="alert-container"></div>
+
+    <script src="scripts/login.js"></script>
+</body>
+</html>
