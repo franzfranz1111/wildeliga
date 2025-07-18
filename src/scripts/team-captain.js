@@ -473,9 +473,17 @@ class TeamCaptainSystem {
     async handleLogout() {
         try {
             await this.supabase.auth.signOut();
-            window.location.href = 'login.html';
+            
+            // Erfolgreiche Abmeldung anzeigen
+            this.showAlert('Erfolgreich', 'Erfolgreich abgemeldet!', 'success');
+            
+            // Weiterleitung zur Startseite nach kurzer Verzögerung
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1500);
         } catch (error) {
             console.error('Logout error:', error);
+            this.showAlert('Fehler', 'Fehler beim Abmelden.', 'error');
         }
     }
 

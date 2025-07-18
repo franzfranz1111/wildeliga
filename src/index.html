@@ -43,7 +43,15 @@
 
             <!-- League Table -->
             <section class="league-table-section" id="tabelle">
-                <h2>Aktuelle Tabelle</h2>
+                <div class="section-header">
+                    <h2>Tabelle</h2>
+                    <div class="season-selector">
+                        <label for="season-select">Saison:</label>
+                        <select id="season-select">
+                            <option value="">Wird geladen...</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="table-container">
                     <table class="league-table">
                         <thead>
@@ -181,7 +189,15 @@
 
             <!-- Latest Results -->
             <section class="results-section" id="ergebnisse">
-                <h2>Spielergebnisse</h2>
+                <div class="section-header">
+                    <h2>Spielergebnisse</h2>
+                    <div class="season-selector">
+                        <label for="results-season-select">Saison:</label>
+                        <select id="results-season-select">
+                            <option value="">Wird geladen...</option>
+                        </select>
+                    </div>
+                </div>
                 
                 <!-- Filter Controls -->
                 <div class="filter-controls">
@@ -353,6 +369,108 @@
                 </div>
             </section>
 
+            <!-- Termine Section -->
+            <section class="tournaments-section" id="termine">
+                <h2>Kommende Turniere & Events</h2>
+                <div class="tournaments-grid">
+                    <div class="tournament-card">
+                        <div class="tournament-date">
+                            <span class="month">Nov</span>
+                            <span class="day">15</span>
+                        </div>
+                        <div class="tournament-info">
+                            <h3>Herbstturnier 2024</h3>
+                            <p class="tournament-location">📍 Sportpark Bremen-Nord</p>
+                            <p class="tournament-details">Traditionelles Herbstturnier mit allen Liga-Teams</p>
+                            <div class="tournament-tags">
+                                <span class="tag">Alle Teams</span>
+                                <span class="tag">Pokal</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tournament-card">
+                        <div class="tournament-date">
+                            <span class="month">Dez</span>
+                            <span class="day">08</span>
+                        </div>
+                        <div class="tournament-info">
+                            <h3>Weihnachtsturnier</h3>
+                            <p class="tournament-location">📍 Halle Findorff</p>
+                            <p class="tournament-details">Gemütliches Hallenturnier vor Weihnachten</p>
+                            <div class="tournament-tags">
+                                <span class="tag">Halle</span>
+                                <span class="tag">Fun</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tournament-card">
+                        <div class="tournament-date">
+                            <span class="month">Jan</span>
+                            <span class="day">12</span>
+                        </div>
+                        <div class="tournament-info">
+                            <h3>Neujahrs-Cup</h3>
+                            <p class="tournament-location">📍 Weserstadion Bremen</p>
+                            <p class="tournament-details">Großes Turnier zum Saisonauftakt 2025</p>
+                            <div class="tournament-tags">
+                                <span class="tag">Highlight</span>
+                                <span class="tag">Saisonstart</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tournament-card">
+                        <div class="tournament-date">
+                            <span class="month">Feb</span>
+                            <span class="day">22</span>
+                        </div>
+                        <div class="tournament-info">
+                            <h3>Junioren-Förderturnier</h3>
+                            <p class="tournament-location">📍 Sportplatz Vegesack</p>
+                            <p class="tournament-details">Nachwuchsförderung für U16 und U18</p>
+                            <div class="tournament-tags">
+                                <span class="tag">Nachwuchs</span>
+                                <span class="tag">Förderung</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tournament-card">
+                        <div class="tournament-date">
+                            <span class="month">Mär</span>
+                            <span class="day">15</span>
+                        </div>
+                        <div class="tournament-info">
+                            <h3>Frühjahrs-Masters</h3>
+                            <p class="tournament-location">📍 Sportpark Werdersee</p>
+                            <p class="tournament-details">Veteranen-Turnier für Spieler ab 35</p>
+                            <div class="tournament-tags">
+                                <span class="tag">Veteranen</span>
+                                <span class="tag">Masters</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tournament-card">
+                        <div class="tournament-date">
+                            <span class="month">Apr</span>
+                            <span class="day">26</span>
+                        </div>
+                        <div class="tournament-info">
+                            <h3>Bremen-Cup Finale</h3>
+                            <p class="tournament-location">📍 Weserstadion Bremen</p>
+                            <p class="tournament-details">Große Saisonabschluss-Gala mit Preisverleihung</p>
+                            <div class="tournament-tags">
+                                <span class="tag">Finale</span>
+                                <span class="tag">Gala</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Teams Section -->
             <section class="teams-section" id="teams">
                 <h2>Unsere Teams</h2>
@@ -451,19 +569,112 @@
     <script>
         // Initialize page with dynamic data
         document.addEventListener('DOMContentLoaded', async function() {
-            // Load dynamic data
-            await loadStandings();
-            await loadResults();
+            // Load seasons first and get current season
+            const currentSeason = await loadSeasons();
+            
+            // Load dynamic data with current season
+            if (currentSeason) {
+                await loadStandings(currentSeason.id);
+                await loadResults(currentSeason.id);
+            } else {
+                // Fallback to load without season filter
+                await loadStandings();
+                await loadResults();
+            }
+            
             await loadTeams();
             
             // Initialize filter functionality
             initializeFilters();
         });
 
-        // Load standings from database
-        async function loadStandings() {
+        // Load seasons and populate selectors
+        async function loadSeasons() {
             try {
-                const standings = await WildeLigaAPI.getStandings();
+                const seasons = await WildeLigaAPI.getSeasons();
+                const currentSeason = await WildeLigaAPI.getCurrentSeason();
+                
+                console.log('Loaded seasons:', seasons);
+                console.log('Current season:', currentSeason);
+                
+                const seasonSelect = document.getElementById('season-select');
+                const resultsSeasonSelect = document.getElementById('results-season-select');
+                
+                console.log('Season select element:', seasonSelect);
+                console.log('Results season select element:', resultsSeasonSelect);
+                
+                if (!seasonSelect || !resultsSeasonSelect) {
+                    console.error('One or both dropdown elements not found!');
+                    return null;
+                }
+                
+                // Clear existing options
+                seasonSelect.innerHTML = '';
+                resultsSeasonSelect.innerHTML = '';
+                
+                // Add seasons to selectors
+                seasons.forEach(season => {
+                    const option1 = document.createElement('option');
+                    option1.value = season.id;
+                    option1.textContent = season.name;
+                    if (season.status === 'active') {
+                        option1.selected = true;
+                    }
+                    seasonSelect.appendChild(option1);
+                    
+                    const option2 = document.createElement('option');
+                    option2.value = season.id;
+                    option2.textContent = season.name;
+                    if (season.status === 'active') {
+                        option2.selected = true;
+                    }
+                    resultsSeasonSelect.appendChild(option2);
+                });
+                
+                // Add event listeners for season changes with synchronization
+                seasonSelect.addEventListener('change', function() {
+                    const selectedSeasonId = this.value;
+                    console.log('Season changed (standings):', selectedSeasonId);
+                    
+                    // Update both sections
+                    loadStandings(selectedSeasonId);
+                    loadResults(selectedSeasonId);
+                    
+                    // Synchronize the other dropdown
+                    if (resultsSeasonSelect.value !== selectedSeasonId) {
+                        resultsSeasonSelect.value = selectedSeasonId;
+                    }
+                });
+                
+                resultsSeasonSelect.addEventListener('change', function() {
+                    const selectedSeasonId = this.value;
+                    console.log('Season changed (results):', selectedSeasonId);
+                    
+                    // Update both sections
+                    loadStandings(selectedSeasonId);
+                    loadResults(selectedSeasonId);
+                    
+                    // Synchronize the other dropdown
+                    if (seasonSelect.value !== selectedSeasonId) {
+                        seasonSelect.value = selectedSeasonId;
+                    }
+                });
+                
+                console.log('Event listeners added successfully');
+                
+                // Return current season for initial load
+                return currentSeason;
+                
+            } catch (error) {
+                console.error('Error loading seasons:', error);
+                return null;
+            }
+        }
+
+        // Load standings from database
+        async function loadStandings(seasonId = null) {
+            try {
+                const standings = await WildeLigaAPI.getStandings(seasonId);
                 const tableBody = document.querySelector('.league-table tbody');
                 
                 if (standings && standings.length > 0) {
@@ -496,20 +707,34 @@
         }
 
         // Load results from database
-        async function loadResults() {
+        async function loadResults(seasonId = null) {
             try {
-                const matches = await WildeLigaAPI.getAllMatches();
+                console.log('Loading results for season:', seasonId);
+                const matches = await WildeLigaAPI.getAllMatches(seasonId);
+                console.log('Loaded matches:', matches);
                 const resultsContainer = document.getElementById('results-container');
                 
                 if (matches && matches.length > 0) {
                     // Group matches by matchday
                     const matchesByMatchday = {};
+                    const teamsInSeason = new Set();
+                    
                     matches.forEach(match => {
                         if (!matchesByMatchday[match.matchday]) {
                             matchesByMatchday[match.matchday] = [];
                         }
                         matchesByMatchday[match.matchday].push(match);
+                        
+                        // Collect teams for team filter
+                        teamsInSeason.add(match.home_team.name);
+                        teamsInSeason.add(match.away_team.name);
                     });
+                    
+                    // Update matchday filter options
+                    updateMatchdayFilter(Object.keys(matchesByMatchday));
+                    
+                    // Update team filter options
+                    updateTeamFilter(Array.from(teamsInSeason));
                     
                     resultsContainer.innerHTML = '';
                     
@@ -537,9 +762,53 @@
                             `;
                             resultsContainer.innerHTML += matchdayHtml;
                         });
+                        
+                    // Re-initialize filters after content update
+                    // Note: Don't call initializeFilters() here as it only handles matchday/team filters
+                    // initializeFilters();
                 }
             } catch (error) {
                 console.error('Error loading results:', error);
+            }
+        }
+
+        // Update matchday filter options
+        function updateMatchdayFilter(matchdays) {
+            const matchdaySelect = document.getElementById('matchday-select');
+            const currentValue = matchdaySelect.value;
+            
+            matchdaySelect.innerHTML = '<option value="all">Alle Spieltage</option>';
+            
+            matchdays.sort((a, b) => b - a).forEach(matchday => {
+                const option = document.createElement('option');
+                option.value = matchday;
+                option.textContent = `${matchday}. Spieltag`;
+                matchdaySelect.appendChild(option);
+            });
+            
+            // Try to maintain the current selection
+            if (matchdays.includes(currentValue)) {
+                matchdaySelect.value = currentValue;
+            }
+        }
+
+        // Update team filter options
+        function updateTeamFilter(teams) {
+            const teamSelect = document.getElementById('team-select');
+            const currentValue = teamSelect.value;
+            
+            teamSelect.innerHTML = '<option value="all">Alle Teams</option>';
+            
+            teams.sort().forEach(team => {
+                const option = document.createElement('option');
+                option.value = team;
+                option.textContent = team;
+                teamSelect.appendChild(option);
+            });
+            
+            // Try to maintain the current selection
+            if (teams.includes(currentValue)) {
+                teamSelect.value = currentValue;
             }
         }
 
@@ -647,6 +916,10 @@
                     resultsContainer.style.gridTemplateColumns = 'repeat(auto-fit, minmax(300px, 1fr))';
                 }
             }
+            
+            // Remove existing event listeners to prevent duplicates
+            matchdaySelect.removeEventListener('change', filterResults);
+            teamSelect.removeEventListener('change', filterResults);
             
             // Add event listeners
             matchdaySelect.addEventListener('change', filterResults);

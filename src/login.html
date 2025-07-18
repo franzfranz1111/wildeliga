@@ -12,55 +12,26 @@
     <script src="config.js"></script>
 </head>
 <body>
-    <div class="login-container">
+    <!-- Login Container -->
+    <div id="loginContainer" class="login-container">
         <div class="login-header">
             <h1>⚽ Wilde Liga Bremen</h1>
             <p>Anmelden zum Verwaltungsbereich</p>
         </div>
 
         <div class="login-form-container">
-            <div class="login-tabs">
-                <button class="tab-button active" onclick="showTab('login')">Anmelden</button>
-                <button class="tab-button" onclick="showTab('register')">Registrieren</button>
-            </div>
-
             <!-- Login Form -->
-            <div id="login-tab" class="tab-content active">
-                <form id="login-form" class="login-form">
-                    <div class="form-group">
-                        <label for="login-email">E-Mail</label>
-                        <input type="email" id="login-email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="login-password">Passwort</label>
-                        <input type="password" id="login-password" required>
-                    </div>
-                    <button type="submit" class="login-button">Anmelden</button>
-                </form>
-            </div>
-
-            <!-- Register Form -->
-            <div id="register-tab" class="tab-content">
-                <form id="register-form" class="login-form">
-                    <div class="form-group">
-                        <label for="register-name">Name</label>
-                        <input type="text" id="register-name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="register-email">E-Mail</label>
-                        <input type="email" id="register-email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="register-password">Passwort</label>
-                        <input type="password" id="register-password" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="register-password-confirm">Passwort bestätigen</label>
-                        <input type="password" id="register-password-confirm" required>
-                    </div>
-                    <button type="submit" class="login-button">Registrieren</button>
-                </form>
-            </div>
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label for="login-email">E-Mail</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Passwort</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="login-button">Anmelden</button>
+            </form>
         </div>
 
         <div class="login-info">
@@ -69,6 +40,86 @@
 
         <div class="login-footer">
             <a href="index.html">← Zurück zur Startseite</a>
+        </div>
+    </div>
+
+    <!-- User Dashboard -->
+    <div id="userDashboard" class="dashboard-container" style="display: none;">
+        <div class="dashboard-header">
+            <h1>⚽ Wilde Liga Bremen</h1>
+            <div class="user-info">
+                <span id="userDisplayName"></span>
+                <span id="userRoleDisplay" class="role-badge"></span>
+                <button id="logoutBtn" class="btn-logout">Abmelden</button>
+            </div>
+        </div>
+        
+        <div class="dashboard-content">
+            <!-- Admin Section -->
+            <div id="adminSection" class="dashboard-section" style="display: none;">
+                <h2>Administrator-Bereich</h2>
+                <p>Verwalten Sie die Liga über den <a href="admin.html" class="admin-link">Admin-Bereich</a>.</p>
+            </div>
+            
+            <!-- Contact Person Section -->
+            <div id="contactSection" class="dashboard-section" style="display: none;">
+                <h2>Ansprechpartner - <span id="contactTeamName"></span></h2>
+                
+                <!-- Season Filter -->
+                <div class="season-filter">
+                    <label for="contactSeasonSelect">Saison:</label>
+                    <select id="contactSeasonSelect">
+                        <option value="">Saison wählen</option>
+                    </select>
+                </div>
+                
+                <!-- Matches for Contact Person -->
+                <div class="matches-container" id="contactMatchesContainer">
+                    <!-- Matches will be loaded here -->
+                </div>
+            </div>
+            
+            <!-- Regular User Section -->
+            <div id="userSection" class="dashboard-section" style="display: none;">
+                <h2>Willkommen bei der Wilde Liga Bremen!</h2>
+                <p>Sie sind als Benutzer angemeldet.</p>
+                <a href="index.html" class="back-link">← Zurück zur Startseite</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Score Submission Modal -->
+    <div id="scoreModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Spielstand übermitteln</h3>
+                <button class="close-btn" onclick="closeScoreModal()">&times;</button>
+            </div>
+            <div id="matchDetails" class="match-details">
+                <!-- Match details will be loaded here -->
+            </div>
+            <form id="scoreForm">
+                <input type="hidden" id="matchId">
+                <div class="score-inputs">
+                    <div class="team-score">
+                        <label for="homeScore" id="homeTeamLabel">Heimteam:</label>
+                        <input type="number" id="homeScore" min="0" required>
+                    </div>
+                    <div class="score-separator">:</div>
+                    <div class="team-score">
+                        <label for="awayScore" id="awayTeamLabel">Auswärtsteam:</label>
+                        <input type="number" id="awayScore" min="0" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="matchNotes">Bemerkungen (optional):</label>
+                    <textarea id="matchNotes" rows="3" placeholder="Besondere Vorkommnisse, Anmerkungen..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeScoreModal()">Abbrechen</button>
+                    <button type="submit" class="btn-primary">Spielstand übermitteln</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -83,6 +134,6 @@
     <!-- Alert Container -->
     <div id="alert-container" class="alert-container"></div>
 
-    <script src="scripts/login.js"></script>
+    <script src="scripts/login-enhanced.js"></script>
 </body>
 </html>

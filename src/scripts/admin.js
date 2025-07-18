@@ -2,7 +2,7 @@
 
 let currentUser = null;
 let teams = [];
-let players = [];
+
 let users = [];
 
 // Initialize admin interface
@@ -49,19 +49,21 @@ function initializeEventListeners() {
     });
     
     // Add buttons
+    document.getElementById('addSeasonBtn').addEventListener('click', () => openSeasonModal());
     document.getElementById('addTeamBtn').addEventListener('click', () => openTeamModal());
-    document.getElementById('addPlayerBtn').addEventListener('click', () => openPlayerModal());
+    document.getElementById('addContactBtn').addEventListener('click', () => openContactModal());
     document.getElementById('addMatchBtn').addEventListener('click', () => openMatchModal());
     document.getElementById('addUserBtn').addEventListener('click', () => openUserModal());
     
     // Forms
+    document.getElementById('seasonForm').addEventListener('submit', handleSeasonSubmit);
     document.getElementById('teamForm').addEventListener('submit', handleTeamSubmit);
-    document.getElementById('playerForm').addEventListener('submit', handlePlayerSubmit);
+    document.getElementById('contactForm').addEventListener('submit', handleContactSubmit);
     document.getElementById('matchForm').addEventListener('submit', handleMatchSubmit);
     document.getElementById('userForm').addEventListener('submit', handleUserSubmit);
     
     // Filter
-    document.getElementById('playerTeamFilter').addEventListener('change', filterPlayers);
+    document.getElementById('contactTeamFilter').addEventListener('change', filterContacts);
     document.getElementById('userRoleFilter').addEventListener('change', filterUsers);
     
     // Role selection handler
@@ -98,7 +100,43 @@ async function handleLogin(e) {
 async function handleLogout() {
     await supabase.auth.signOut();
     currentUser = null;
-    showLoginModal();
+    
+    // Erfolgreiche Abmeldung anzeigen
+    showAlert('Erfolgreich', 'Erfolgreich abgemeldet!', 'success');
+    
+    // Weiterleitung zur Startseite nach kurzer Verzögerung
+    setTimeout(() => {
+        window.location.href = 'index.html';
+    }, 1500);
+}
+
+// Alert System
+function showAlert(title, message, type = 'info') {
+    const container = document.getElementById('alert-container');
+    const alert = document.createElement('div');
+    alert.className = `alert ${type}`;
+    
+    alert.innerHTML = `
+        <div class="alert-title">${title}</div>
+        <div class="alert-message">${message}</div>
+    `;
+    
+    container.appendChild(alert);
+    
+    // Trigger animation
+    setTimeout(() => {
+        alert.classList.add('show');
+    }, 100);
+    
+    // Remove after 5 seconds
+    setTimeout(() => {
+        alert.classList.remove('show');
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.parentNode.removeChild(alert);
+            }
+        }, 300);
+    }, 5000);
 }
 
 // Tab Navigation
@@ -116,8 +154,8 @@ function switchTab(tabName) {
         case 'teams':
             loadTeams();
             break;
-        case 'players':
-            loadPlayers();
+        case 'contacts':
+            loadContacts();
             break;
         case 'matches':
             loadMatches();
@@ -133,8 +171,154 @@ function switchTab(tabName) {
 
 // Load initial data
 async function loadInitialData() {
+    await loadSeasons();
     await loadTeams();
     await loadTeamOptions();
+}
+
+// Season Management
+async function loadSeasons() {
+    try {
+        const seasons = await WildeLigaAPI.getSeasons();
+        const currentSeason = await WildeLigaAPI.getCurrentSeason();
+        
+        // Update current season display
+        const currentSeasonDisplay = document.getElementById('current-season-display');
+        if (currentSeason) {
+            currentSeasonDisplay.innerHTML = `
+                <strong>${currentSeason.name}</strong> (${currentSeason.year})
+                <span class="season-status ${currentSeason.status}">${currentSeason.status}</span>
+            `;
+        } else {
+            currentSeasonDisplay.innerHTML = '<span class="no-season">Keine aktive Saison</span>';
+        }
+        
+        // Load seasons grid
+        const seasonsGrid = document.getElementById('seasonsGrid');
+        seasonsGrid.innerHTML = '';
+        
+        seasons.forEach(season => {
+            const seasonCard = document.createElement('div');
+            seasonCard.className = 'season-card';
+            seasonCard.innerHTML = `
+                <div class="season-header">
+                    <h3>${season.name}</h3>
+                    <span class="season-status ${season.status}">${season.status}</span>
+                </div>
+                <div class="season-info">
+                    <p><strong>Jahr:</strong> ${season.year}</p>
+                    <p><strong>Start:</strong> ${season.start_date ? new Date(season.start_date).toLocaleDateString() : 'Nicht gesetzt'}</p>
+                    <p><strong>Ende:</strong> ${season.end_date ? new Date(season.end_date).toLocaleDateString() : 'Nicht gesetzt'}</p>
+                </div>
+                <div class="season-actions">
+                    <button class="btn-small" onclick="viewSeasonTeams('${season.id}')">Teams anzeigen</button>
+                    ${season.status === 'active' ? '' : '<button class="btn-small btn-danger" onclick="deleteSeason(\'' + season.id + '\')">Löschen</button>'}
+                </div>
+            `;
+            seasonsGrid.appendChild(seasonCard);
+        });
+    } catch (error) {
+        showErrorMessage('Fehler beim Laden der Saisons: ' + error.message);
+    }
+}
+
+function openSeasonModal() {
+    const modal = document.getElementById('seasonModal');
+    const form = document.getElementById('seasonForm');
+    
+    // Set default values
+    const currentYear = new Date().getFullYear();
+    document.getElementById('seasonYear').value = currentYear + 1;
+    document.getElementById('seasonName').value = `Saison ${currentYear + 1}/${(currentYear + 2).toString().substr(2)}`;
+    
+    // Set default dates
+    const startDate = new Date(currentYear + 1, 7, 1); // 1. August
+    const endDate = new Date(currentYear + 2, 4, 31); // 31. Mai
+    document.getElementById('seasonStartDate').value = startDate.toISOString().split('T')[0];
+    document.getElementById('seasonEndDate').value = endDate.toISOString().split('T')[0];
+    
+    // Load teams for selection
+    loadTeamSelection();
+    
+    modal.style.display = 'block';
+}
+
+async function loadTeamSelection() {
+    try {
+        const teams = await WildeLigaAPI.getTeams();
+        const teamSelection = document.getElementById('teamSelection');
+        teamSelection.innerHTML = '';
+        
+        teams.forEach(team => {
+            const teamCheckbox = document.createElement('div');
+            teamCheckbox.className = 'team-checkbox';
+            teamCheckbox.innerHTML = `
+                <label for="team-${team.id}">${team.name}</label>
+                <input type="checkbox" value="${team.id}" id="team-${team.id}" checked>
+            `;
+            
+            teamSelection.appendChild(teamCheckbox);
+        });
+    } catch (error) {
+        showErrorMessage('Fehler beim Laden der Teams: ' + error.message);
+    }
+}
+
+// Select all teams function
+function selectAllTeams() {
+    const checkboxes = document.querySelectorAll('#teamSelection input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = true;
+    });
+}
+
+// Deselect all teams function
+function deselectAllTeams() {
+    const checkboxes = document.querySelectorAll('#teamSelection input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+}
+
+async function handleSeasonSubmit(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(event.target);
+    const selectedTeams = Array.from(document.querySelectorAll('#teamSelection input:checked')).map(cb => cb.value);
+    
+    if (selectedTeams.length === 0) {
+        showErrorMessage('Bitte wählen Sie mindestens ein Team aus.');
+        return;
+    }
+    
+    const seasonData = {
+        name: document.getElementById('seasonName').value,
+        year: parseInt(document.getElementById('seasonYear').value),
+        start_date: document.getElementById('seasonStartDate').value,
+        end_date: document.getElementById('seasonEndDate').value
+    };
+    
+    // Bestimme ob Hin- und Rückrunde
+    const doubleRound = document.getElementById('doubleRound').checked;
+    
+    try {
+        await WildeLigaAPI.createSeason(seasonData, selectedTeams, doubleRound);
+        showSuccessMessage('Saison erfolgreich erstellt mit automatischem Spielplan');
+        closeModal('seasonModal');
+        loadSeasons();
+    } catch (error) {
+        showErrorMessage('Fehler beim Erstellen der Saison: ' + error.message);
+    }
+}
+
+async function viewSeasonTeams(seasonId) {
+    try {
+        const seasonTeams = await WildeLigaAPI.getSeasonTeams(seasonId);
+        const teamNames = seasonTeams.map(st => st.team.name).join(', ');
+        alert(`Teams in dieser Saison:\n\n${teamNames}`);
+    } catch (error) {
+        showErrorMessage('Fehler beim Laden der Teams: ' + error.message);
+    }
 }
 
 // Team Management
@@ -286,142 +470,233 @@ async function handleTeamSubmit(e) {
     }
 }
 
-// Player Management
-async function loadPlayers() {
+// Contact Management
+async function loadContacts() {
     try {
         const { data, error } = await supabase
-            .from('players')
+            .from('user_profiles')
             .select(`
                 *,
                 team:teams(name)
             `)
+            .eq('role', 'contact_person')
             .order('name');
         
         if (error) throw error;
         
-        players = data;
-        renderPlayers();
+        renderContacts(data);
+        await loadTeamsForContactFilter();
     } catch (error) {
-        console.error('Error loading players:', error);
+        console.error('Error loading contacts:', error);
+        showErrorMessage('Fehler beim Laden der Ansprechpartner');
     }
 }
 
-function renderPlayers() {
-    const container = document.getElementById('playersList');
-    const filter = document.getElementById('playerTeamFilter').value;
+async function loadTeamsForContactFilter() {
+    try {
+        const { data: teams, error } = await supabase
+            .from('teams')
+            .select('*')
+            .order('name');
+        
+        if (error) throw error;
+        
+        const filter = document.getElementById('contactTeamFilter');
+        filter.innerHTML = '<option value="all">Alle Teams</option>';
+        
+        teams.forEach(team => {
+            const option = document.createElement('option');
+            option.value = team.name;
+            option.textContent = team.name;
+            filter.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error loading teams for filter:', error);
+    }
+}
+
+function renderContacts(contacts) {
+    const container = document.getElementById('contactsList');
+    const filter = document.getElementById('contactTeamFilter').value;
     
     container.innerHTML = '';
     
-    const filteredPlayers = filter === 'all' 
-        ? players 
-        : players.filter(p => p.team.name === filter);
+    const filteredContacts = filter === 'all' 
+        ? contacts 
+        : contacts.filter(c => c.team?.name === filter);
     
-    filteredPlayers.forEach(player => {
-        const playerItem = `
-            <div class="player-item">
-                <div class="player-info">
-                    <h4>${player.name}</h4>
-                    <p><strong>Team:</strong> ${player.team.name}</p>
-                    <p><strong>Position:</strong> ${player.position || '-'} | 
-                       <strong>Nummer:</strong> ${player.jersey_number || '-'} | 
-                       <strong>Alter:</strong> ${player.age || '-'}</p>
+    filteredContacts.forEach(contact => {
+        const contactItem = `
+            <div class="contact-item">
+                <div class="contact-info">
+                    <h4>${contact.name}</h4>
+                    <p><strong>Team:</strong> ${contact.team?.name || 'Kein Team'}</p>
+                    <p><strong>E-Mail:</strong> ${contact.email}</p>
+                    <p><strong>Telefon:</strong> ${contact.phone || '-'}</p>
                 </div>
                 <div class="item-actions">
-                    <button class="btn-edit" onclick="editPlayer('${player.id}')">Bearbeiten</button>
-                    <button class="btn-danger" onclick="deletePlayer('${player.id}')">Löschen</button>
+                    <button class="btn-edit" onclick="editContact('${contact.id}')">Bearbeiten</button>
+                    <button class="btn-danger" onclick="deleteContact('${contact.id}')">Löschen</button>
                 </div>
             </div>
         `;
-        container.innerHTML += playerItem;
+        container.innerHTML += contactItem;
     });
 }
 
-function openPlayerModal(playerId = null) {
-    const modal = document.getElementById('playerModal');
-    const title = document.getElementById('playerModalTitle');
-    const form = document.getElementById('playerForm');
+function openContactModal(contactId = null) {
+    const modal = document.getElementById('contactModal');
+    const title = document.getElementById('contactModalTitle');
+    const form = document.getElementById('contactForm');
     
-    if (playerId) {
-        const player = players.find(p => p.id === playerId);
-        title.textContent = 'Spieler bearbeiten';
-        
-        document.getElementById('playerId').value = player.id;
-        document.getElementById('playerTeam').value = player.team_id;
-        document.getElementById('playerName').value = player.name;
-        document.getElementById('playerPosition').value = player.position || '';
-        document.getElementById('playerNumber').value = player.jersey_number || '';
-        document.getElementById('playerAge').value = player.age || '';
+    // Load teams for dropdown
+    loadTeamsForContactModal();
+    
+    if (contactId) {
+        // Load contact data
+        loadContactData(contactId);
+        title.textContent = 'Ansprechpartner bearbeiten';
     } else {
-        title.textContent = 'Neuer Spieler';
+        title.textContent = 'Neuer Ansprechpartner';
         form.reset();
-        document.getElementById('playerId').value = '';
+        document.getElementById('contactId').value = '';
     }
     
     modal.style.display = 'block';
 }
 
-function editPlayer(playerId) {
-    openPlayerModal(playerId);
+async function loadTeamsForContactModal() {
+    try {
+        const { data: teams, error } = await supabase
+            .from('teams')
+            .select('*')
+            .order('name');
+        
+        if (error) throw error;
+        
+        const select = document.getElementById('contactTeam');
+        select.innerHTML = '<option value="">Team wählen</option>';
+        
+        teams.forEach(team => {
+            const option = document.createElement('option');
+            option.value = team.id;
+            option.textContent = team.name;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error loading teams:', error);
+    }
 }
 
-async function deletePlayer(playerId) {
-    if (confirm('Spieler wirklich löschen?')) {
+async function loadContactData(contactId) {
+    try {
+        const { data, error } = await supabase
+            .from('user_profiles')
+            .select('*')
+            .eq('id', contactId)
+            .single();
+        
+        if (error) throw error;
+        
+        document.getElementById('contactId').value = data.id;
+        document.getElementById('contactName').value = data.name;
+        document.getElementById('contactEmail').value = data.email;
+        document.getElementById('contactPhone').value = data.phone || '';
+        document.getElementById('contactTeam').value = data.team_id || '';
+    } catch (error) {
+        console.error('Error loading contact data:', error);
+    }
+}
+
+function editContact(contactId) {
+    openContactModal(contactId);
+}
+
+async function deleteContact(contactId) {
+    if (confirm('Ansprechpartner wirklich löschen?')) {
         try {
             const { error } = await supabase
-                .from('players')
+                .from('user_profiles')
                 .delete()
-                .eq('id', playerId);
+                .eq('id', contactId);
             
             if (error) throw error;
             
-            await loadPlayers();
-            showSuccessMessage('Spieler erfolgreich gelöscht');
+            await loadContacts();
+            showSuccessMessage('Ansprechpartner erfolgreich gelöscht');
         } catch (error) {
-            console.error('Error deleting player:', error);
-            showErrorMessage('Fehler beim Löschen des Spielers');
+            console.error('Error deleting contact:', error);
+            showErrorMessage('Fehler beim Löschen des Ansprechpartners');
         }
     }
 }
 
-async function handlePlayerSubmit(e) {
+async function handleContactSubmit(e) {
     e.preventDefault();
     
-    const playerData = {
-        team_id: document.getElementById('playerTeam').value,
-        name: document.getElementById('playerName').value,
-        position: document.getElementById('playerPosition').value,
-        jersey_number: document.getElementById('playerNumber').value || null,
-        age: document.getElementById('playerAge').value || null
+    const contactData = {
+        name: document.getElementById('contactName').value,
+        email: document.getElementById('contactEmail').value,
+        phone: document.getElementById('contactPhone').value || null,
+        team_id: document.getElementById('contactTeam').value || null,
+        role: 'contact_person'
     };
     
-    const playerId = document.getElementById('playerId').value;
+    const password = document.getElementById('contactPassword').value;
+    const contactId = document.getElementById('contactId').value;
     
     try {
-        if (playerId) {
-            // Update existing player
+        if (contactId) {
+            // Update existing contact
             const { error } = await supabase
-                .from('players')
-                .update(playerData)
-                .eq('id', playerId);
+                .from('user_profiles')
+                .update(contactData)
+                .eq('id', contactId);
             
             if (error) throw error;
-            showSuccessMessage('Spieler erfolgreich aktualisiert');
+            
+            // Update password if provided
+            if (password) {
+                const { error: authError } = await supabase.auth.updateUser({
+                    password: password
+                });
+                if (authError) throw authError;
+            }
+            
+            showSuccessMessage('Ansprechpartner erfolgreich aktualisiert');
         } else {
-            // Create new player
+            // Create new contact
+            if (!password) {
+                showErrorMessage('Passwort ist erforderlich für neue Ansprechpartner');
+                return;
+            }
+            
+            // Generate a temporary ID for the contact
+            const tempId = crypto.randomUUID();
+            contactData.id = tempId;
+            contactData.temp_password = password; // Store temporarily for manual creation
+            
+            // Create user record first
             const { error } = await supabase
-                .from('players')
-                .insert([playerData]);
+                .from('user_profiles')
+                .insert([contactData]);
             
             if (error) throw error;
-            showSuccessMessage('Spieler erfolgreich erstellt');
+            
+            showSuccessMessage('Ansprechpartner erfolgreich erstellt. Bitte erstellen Sie den Auth-Benutzer manuell über das Supabase Dashboard.');
+            showInfoMessage(`E-Mail: ${contactData.email}, Passwort: ${password}, ID: ${tempId}`);
         }
         
-        closeModal('playerModal');
-        await loadPlayers();
+        closeModal('contactModal');
+        await loadContacts();
     } catch (error) {
-        console.error('Error saving player:', error);
-        showErrorMessage('Fehler beim Speichern des Spielers');
+        console.error('Error saving contact:', error);
+        showErrorMessage('Fehler beim Speichern des Ansprechpartners');
     }
+}
+
+function filterContacts() {
+    loadContacts();
 }
 
 // Match Management
@@ -541,21 +816,20 @@ async function loadTeamOptions() {
     });
 }
 
-function filterPlayers() {
-    renderPlayers();
-}
-
 function closeModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
 }
 
 function showSuccessMessage(message) {
-    // Simple alert for now - could be enhanced with toast notifications
-    alert(message);
+    showAlert('Erfolgreich', message, 'success');
 }
 
 function showErrorMessage(message) {
-    alert('Fehler: ' + message);
+    showAlert('Fehler', message, 'error');
+}
+
+function showInfoMessage(message) {
+    showAlert('Info', message, 'info');
 }
 
 // Load achievements (placeholder)
@@ -623,7 +897,7 @@ function renderUsers() {
 function getRoleDisplayName(role) {
     switch (role) {
         case 'admin': return 'Admin';
-        case 'team_captain': return 'Teamkapitän';
+        case 'contact_person': return 'Ansprechpartner';
         case 'user': return 'Benutzer';
         default: return role;
     }
@@ -663,7 +937,7 @@ function handleRoleChange() {
     const role = document.getElementById('userRole').value;
     const teamGroup = document.getElementById('teamSelectGroup');
     
-    if (role === 'team_captain') {
+    if (role === 'contact_person') {
         teamGroup.classList.add('show');
     } else {
         teamGroup.classList.remove('show');

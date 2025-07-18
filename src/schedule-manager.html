@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spielplan-Manager - Wilde Liga Bremen</title>
+    <link rel="stylesheet" href="styles/wilde-liga.css">
+    <link rel="stylesheet" href="styles/admin.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1>Spielplan-Manager</h1>
+            <div class="admin-actions">
+                <button id="back-btn" class="btn btn-secondary">← Zurück zum Admin</button>
+                <button id="logout-btn" class="btn btn-danger">Logout</button>
+            </div>
+        </header>
+
+        <main class="admin-main">
+            <!-- Saison-Auswahl -->
+            <div class="admin-section">
+                <h2>Saison auswählen</h2>
+                <div class="form-group">
+                    <select id="season-select" class="form-control">
+                        <option value="">Lade Saisons...</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Spielplan-Übersicht -->
+            <div class="admin-section" id="schedule-section" style="display: none;">
+                <div class="section-header">
+                    <h2>Spielplan</h2>
+                    <div class="section-actions">
+                        <button id="regenerate-schedule-btn" class="btn btn-warning">Spielplan neu generieren</button>
+                        <button id="export-schedule-btn" class="btn btn-info">Export</button>
+                    </div>
+                </div>
+
+                <!-- Spielplan-Optionen -->
+                <div class="schedule-options">
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="double-round-checkbox" checked>
+                            Hin- und Rückrunde
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Spieltage -->
+                <div class="matchdays-container" id="matchdays-container">
+                    <!-- Wird dynamisch geladen -->
+                </div>
+            </div>
+
+            <!-- Einzelspiel bearbeiten Modal -->
+            <div id="edit-match-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Spiel bearbeiten</h2>
+                    <form id="edit-match-form">
+                        <div class="form-group">
+                            <label>Heimteam vs Auswärtsteam</label>
+                            <p id="match-teams"></p>
+                        </div>
+                        <div class="form-group">
+                            <label for="match-date">Datum:</label>
+                            <input type="date" id="match-date" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="match-time">Uhrzeit:</label>
+                            <input type="time" id="match-time" class="form-control" value="15:00" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="match-status">Status:</label>
+                            <select id="match-status" class="form-control">
+                                <option value="scheduled">Geplant</option>
+                                <option value="completed">Abgeschlossen</option>
+                                <option value="cancelled">Abgesagt</option>
+                            </select>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="submit" class="btn btn-primary">Speichern</button>
+                            <button type="button" class="btn btn-secondary" id="cancel-edit-btn">Abbrechen</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Spieltag verschieben Modal -->
+            <div id="reschedule-matchday-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Spieltag verschieben</h2>
+                    <form id="reschedule-matchday-form">
+                        <div class="form-group">
+                            <label>Spieltag:</label>
+                            <p id="matchday-info"></p>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-matchday-date">Neues Datum:</label>
+                            <input type="date" id="new-matchday-date" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Uhrzeiten:</label>
+                            <div class="time-slots">
+                                <input type="time" class="form-control time-slot" value="15:00">
+                                <input type="time" class="form-control time-slot" value="17:00">
+                                <button type="button" class="btn btn-small" id="add-time-slot">+ Weitere Uhrzeit</button>
+                            </div>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="submit" class="btn btn-primary">Spieltag verschieben</button>
+                            <button type="button" class="btn btn-secondary" id="cancel-reschedule-btn">Abbrechen</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="scripts/auth.js"></script>
+    <script>
+        let currentSeason = null;
+        let currentMatches = [];
+        let currentEditingMatch = null;
+        let currentEditingMatchday = null;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check authentication
+            const user = await checkAuth();
+            if (!user || user.role !== 'admin') {
+                showAlert('Zugriff verweigert. Nur Administratoren können auf diese Seite zugreifen.', 'error');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            await loadSeasons();
+            initializeEventListeners();
+        });
+
+        // Load seasons
+        async function loadSeasons() {
+            try {
+                const seasons = await WildeLigaAPI.getSeasons();
+                const seasonSelect = document.getElementById('season-select');
+                
+                seasonSelect.innerHTML = '<option value="">Saison wählen...</option>';
+                
+                seasons.forEach(season => {
+                    const option = document.createElement('option');
+                    option.value = season.id;
+                    option.textContent = season.name;
+                    if (season.status === 'active') {
+                        option.selected = true;
+                    }
+                    seasonSelect.appendChild(option);
+                });
+
+                // Load current season if any
+                if (seasonSelect.value) {
+                    await loadSeasonSchedule(seasonSelect.value);
+                }
+            } catch (error) {
+                console.error('Error loading seasons:', error);
+                showAlert('Fehler beim Laden der Saisons', 'error');
+            }
+        }
+
+        // Load season schedule
+        async function loadSeasonSchedule(seasonId) {
+            try {
+                currentSeason = seasonId;
+                const matches = await WildeLigaAPI.getSeasonMatches(seasonId);
+                currentMatches = matches;
+                
+                displaySchedule(matches);
+                document.getElementById('schedule-section').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading schedule:', error);
+                showAlert('Fehler beim Laden des Spielplans', 'error');
+            }
+        }
+
+        // Display schedule
+        function displaySchedule(matches) {
+            const container = document.getElementById('matchdays-container');
+            container.innerHTML = '';
+
+            // Group matches by matchday
+            const matchesByMatchday = {};
+            matches.forEach(match => {
+                if (!matchesByMatchday[match.matchday]) {
+                    matchesByMatchday[match.matchday] = [];
+                }
+                matchesByMatchday[match.matchday].push(match);
+            });
+
+            // Create HTML for each matchday
+            Object.keys(matchesByMatchday)
+                .sort((a, b) => parseInt(a) - parseInt(b))
+                .forEach(matchday => {
+                    const matchdayDiv = document.createElement('div');
+                    matchdayDiv.className = 'matchday-section';
+                    
+                    const matchdayMatches = matchesByMatchday[matchday];
+                    const matchdayDate = matchdayMatches[0]?.match_date ? 
+                        new Date(matchdayMatches[0].match_date).toLocaleDateString('de-DE') : 
+                        'Datum nicht festgelegt';
+
+                    matchdayDiv.innerHTML = `
+                        <div class="matchday-header">
+                            <h3>${matchday}. Spieltag</h3>
+                            <div class="matchday-info">
+                                <span class="matchday-date">${matchdayDate}</span>
+                                <button class="btn btn-small" onclick="openRescheduleMatchdayModal(${matchday})">
+                                    Spieltag verschieben
+                                </button>
+                            </div>
+                        </div>
+                        <div class="matches-grid">
+                            ${matchdayMatches.map(match => `
+                                <div class="match-card" onclick="openEditMatchModal('${match.match_id}')">
+                                    <div class="match-teams">
+                                        <span class="home-team">${match.home_team_name}</span>
+                                        <span class="vs">vs</span>
+                                        <span class="away-team">${match.away_team_name}</span>
+                                    </div>
+                                    <div class="match-info">
+                                        <span class="match-date">${match.match_date ? 
+                                            new Date(match.match_date).toLocaleString('de-DE') : 
+                                            'Nicht geplant'}</span>
+                                        <span class="match-status status-${match.status}">${getStatusText(match.status)}</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    
+                    container.appendChild(matchdayDiv);
+                });
+        }
+
+        // Get status text
+        function getStatusText(status) {
+            const statusMap = {
+                'scheduled': 'Geplant',
+                'completed': 'Abgeschlossen',
+                'cancelled': 'Abgesagt'
+            };
+            return statusMap[status] || status;
+        }
+
+        // Open edit match modal
+        function openEditMatchModal(matchId) {
+            const match = currentMatches.find(m => m.match_id === matchId);
+            if (!match) return;
+
+            currentEditingMatch = match;
+            
+            document.getElementById('match-teams').textContent = 
+                `${match.home_team_name} vs ${match.away_team_name}`;
+            
+            if (match.match_date) {
+                const date = new Date(match.match_date);
+                document.getElementById('match-date').value = date.toISOString().split('T')[0];
+                document.getElementById('match-time').value = date.toTimeString().substring(0, 5);
+            }
+            
+            document.getElementById('match-status').value = match.status;
+            document.getElementById('edit-match-modal').style.display = 'block';
+        }
+
+        // Open reschedule matchday modal
+        function openRescheduleMatchdayModal(matchday) {
+            currentEditingMatchday = matchday;
+            document.getElementById('matchday-info').textContent = `${matchday}. Spieltag`;
+            document.getElementById('reschedule-matchday-modal').style.display = 'block';
+        }
+
+        // Initialize event listeners
+        function initializeEventListeners() {
+            // Season selection
+            document.getElementById('season-select').addEventListener('change', function() {
+                if (this.value) {
+                    loadSeasonSchedule(this.value);
+                } else {
+                    document.getElementById('schedule-section').style.display = 'none';
+                }
+            });
+
+            // Regenerate schedule
+            document.getElementById('regenerate-schedule-btn').addEventListener('click', async function() {
+                if (!currentSeason) return;
+                
+                const confirmed = confirm('Möchten Sie den Spielplan wirklich neu generieren? Alle aktuellen Termine gehen verloren!');
+                if (!confirmed) return;
+
+                try {
+                    const season = await WildeLigaAPI.getSeasons();
+                    const currentSeasonData = season.find(s => s.id === currentSeason);
+                    const doubleRound = document.getElementById('double-round-checkbox').checked;
+                    
+                    await WildeLigaAPI.generateSchedule(
+                        currentSeason, 
+                        currentSeasonData.start_date, 
+                        currentSeasonData.end_date, 
+                        doubleRound
+                    );
+                    
+                    showAlert('Spielplan erfolgreich neu generiert!', 'success');
+                    await loadSeasonSchedule(currentSeason);
+                } catch (error) {
+                    console.error('Error regenerating schedule:', error);
+                    showAlert('Fehler beim Generieren des Spielplans', 'error');
+                }
+            });
+
+            // Edit match form
+            document.getElementById('edit-match-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const date = document.getElementById('match-date').value;
+                const time = document.getElementById('match-time').value;
+                
+                try {
+                    await WildeLigaAPI.rescheduleMatch(currentEditingMatch.match_id, date, time);
+                    showAlert('Spiel erfolgreich aktualisiert!', 'success');
+                    closeModals();
+                    await loadSeasonSchedule(currentSeason);
+                } catch (error) {
+                    console.error('Error updating match:', error);
+                    showAlert('Fehler beim Aktualisieren des Spiels', 'error');
+                }
+            });
+
+            // Reschedule matchday form
+            document.getElementById('reschedule-matchday-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const date = document.getElementById('new-matchday-date').value;
+                const timeSlots = Array.from(document.querySelectorAll('.time-slot'))
+                    .map(input => input.value)
+                    .filter(time => time);
+                
+                try {
+                    await WildeLigaAPI.rescheduleMatchday(currentSeason, currentEditingMatchday, date, timeSlots);
+                    showAlert('Spieltag erfolgreich verschoben!', 'success');
+                    closeModals();
+                    await loadSeasonSchedule(currentSeason);
+                } catch (error) {
+                    console.error('Error rescheduling matchday:', error);
+                    showAlert('Fehler beim Verschieben des Spieltags', 'error');
+                }
+            });
+
+            // Modal close buttons
+            document.querySelectorAll('.close, #cancel-edit-btn, #cancel-reschedule-btn').forEach(btn => {
+                btn.addEventListener('click', closeModals);
+            });
+
+            // Add time slot
+            document.getElementById('add-time-slot').addEventListener('click', function() {
+                const timeSlots = document.querySelector('.time-slots');
+                const newTimeSlot = document.createElement('input');
+                newTimeSlot.type = 'time';
+                newTimeSlot.className = 'form-control time-slot';
+                newTimeSlot.value = '19:00';
+                timeSlots.insertBefore(newTimeSlot, this);
+            });
+
+            // Navigation
+            document.getElementById('back-btn').addEventListener('click', function() {
+                window.location.href = 'admin.html';
+            });
+
+            document.getElementById('logout-btn').addEventListener('click', logout);
+        }
+
+        // Close modals
+        function closeModals() {
+            document.getElementById('edit-match-modal').style.display = 'none';
+            document.getElementById('reschedule-matchday-modal').style.display = 'none';
+        }
+
+        // Show alert
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // Window click to close modals
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

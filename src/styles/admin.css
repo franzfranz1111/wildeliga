@@ -1,5 +1,280 @@
 /* Admin Interface Styles */
 
+/* Schedule Manager Styles */
+.matchdays-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.matchday-section {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.matchday-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.matchday-header h3 {
+    margin: 0;
+    color: var(--primary-color);
+}
+
+.matchday-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.matchday-date {
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.matches-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.match-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.match-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.match-teams {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.home-team, .away-team {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.vs {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.match-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.match-date {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.match-status {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    align-self: flex-start;
+}
+
+.status-scheduled {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.status-completed {
+    background: #e8f5e8;
+    color: #2e7d32;
+}
+
+.status-cancelled {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.schedule-options {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 2rem;
+}
+
+.schedule-options label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.time-slots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.time-slot {
+    width: 120px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.section-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-small {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+/* Radio Button Group */
+.radio-group {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.radio-option:hover {
+    background-color: #f8f9fa;
+}
+
+.radio-option input[type="radio"] {
+    margin: 0;
+    width: 16px;
+    height: 16px;
+}
+
+.radio-label {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+/* Team Selection Checkboxes */
+.team-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 350px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 12px;
+    background: #f8f9fa;
+}
+
+.team-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+.team-checkbox:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 3px;
+}
+
+.team-checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: #3b82f6;
+    flex-shrink: 0;
+}
+
+.team-checkbox label {
+    margin: 0;
+    font-weight: 500;
+    color: #2d3748;
+    cursor: pointer;
+    font-size: 15px;
+    line-height: 1.4;
+    flex: 1;
+    text-align: left;
+}
+
+/* Select/Deselect All */
+.team-selection-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background: #e9ecef;
+    border-radius: 4px;
+}
+
+.team-selection-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.team-selection-actions button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.select-all-btn {
+    background: #28a745;
+    color: white;
+}
+
+.select-all-btn:hover {
+    background: #218838;
+}
+
+.deselect-all-btn {
+    background: #dc3545;
+    color: white;
+}
+
+.deselect-all-btn:hover {
+    background: #c82333;
+}
+
 /* Users Management Styles */
 .users-table-container {
     overflow-x: auto;
@@ -50,7 +325,7 @@
     color: white;
 }
 
-.role-badge.team_captain {
+.role-badge.contact_person {
     background: #3498DB;
     color: white;
 }
@@ -629,6 +904,172 @@
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+/* Alert Container */
+.alert-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1001;
+}
+
+.alert {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    max-width: 300px;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+}
+
+.alert.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.alert.success {
+    border-left: 4px solid #2ECC71;
+}
+
+.alert.error {
+    border-left: 4px solid #E74C3C;
+    background: #fdf2f2;
+}
+
+.alert.error .alert-title {
+    color: #E74C3C;
+}
+
+.alert.info {
+    border-left: 4px solid #3498DB;
+}
+
+.alert-title {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.alert-message {
+    font-size: 14px;
+    color: #666;
+}
+
+/* Season Management */
+.seasons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.season-card {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: var(--transition);
+}
+
+.season-card:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+}
+
+.season-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.season-header h3 {
+    margin: 0;
+    color: var(--primary-color);
+}
+
+.season-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.season-status.active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.season-status.completed {
+    background: #f8f9fa;
+    color: #6c757d;
+}
+
+.season-status.planned {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.season-info {
+    margin-bottom: 1rem;
+}
+
+.season-info p {
+    margin: 0.5rem 0;
+    color: var(--text-color);
+}
+
+.season-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.current-season-info {
+    background: var(--bg-color);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.current-season-info h3 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.no-season {
+    color: #dc3545;
+    font-style: italic;
+}
+
+.team-selection {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 1rem;
+    background: var(--bg-color);
+}
+
+.team-checkbox {
+    margin-bottom: 0.5rem;
+}
+
+.team-checkbox label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.team-checkbox input[type="checkbox"] {
+    margin: 0;
 }
 
 /* Responsive Design */

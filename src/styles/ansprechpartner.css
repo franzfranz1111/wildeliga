@@ -1,0 +1,321 @@
+/* Ansprechpartner Interface Styles */
+
+/* Header */
+.contact-header {
+    background: var(--primary-color);
+    color: white;
+    padding: 1rem 0;
+    box-shadow: var(--shadow);
+}
+
+.contact-header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.contact-logo h1 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.contact-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.contact-info span {
+    color: #e8f5e8;
+    font-size: 0.9rem;
+}
+
+/* Main Content */
+.contact-main {
+    padding: 2rem 0;
+    min-height: calc(100vh - 100px);
+}
+
+.section-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.section-header h2 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.section-header p {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+/* Season Filter */
+.season-filter {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+}
+
+.season-filter label {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.season-filter select {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: white;
+    min-width: 200px;
+}
+
+/* Matches Container */
+.matches-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.match-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+.match-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.match-card.completed {
+    border-left-color: #28a745;
+    background: #f8fff8;
+}
+
+.match-card.pending {
+    border-left-color: #ffc107;
+}
+
+.match-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.match-teams {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.team-name {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.team-name.user-team {
+    color: #e67e22;
+    font-weight: 700;
+}
+
+.vs {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.match-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.match-status.scheduled {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.match-status.completed {
+    background: #e8f5e8;
+    color: #2e7d32;
+}
+
+.match-status.pending {
+    background: #fff3e0;
+    color: #ef6c00;
+}
+
+.match-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.match-info {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.match-date {
+    font-weight: 500;
+}
+
+.match-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-submit-score {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.btn-submit-score:hover {
+    background: var(--secondary-color);
+}
+
+.btn-submit-score:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* Score Modal */
+.match-details {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+}
+
+.match-details h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--primary-color);
+}
+
+.match-details p {
+    margin: 0.25rem 0;
+    color: #666;
+}
+
+.score-inputs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.team-score {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.team-score label {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.team-score input {
+    width: 80px;
+    height: 60px;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: white;
+}
+
+.team-score input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(46, 139, 87, 0.2);
+}
+
+.score-separator {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+}
+
+.empty-state h3 {
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+/* Loading State */
+.loading-state {
+    text-align: center;
+    padding: 2rem;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .contact-header .container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .contact-info {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .match-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .match-details {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .score-inputs {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}

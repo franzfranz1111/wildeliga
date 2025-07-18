@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ansprechpartner - Wilde Liga Bremen</title>
+    <link rel="stylesheet" href="styles/wilde-liga.css">
+    <link rel="stylesheet" href="styles/ansprechpartner.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+</head>
+<body>
+    <!-- Alert Container -->
+    <div id="alert-container" class="alert-container"></div>
+    
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h2>Ansprechpartner Login</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">E-Mail:</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Passwort:</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="btn-primary">Anmelden</button>
+                <div id="loginError" class="error-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Ansprechpartner Dashboard -->
+    <div id="contactDashboard" style="display: none;">
+        <!-- Header -->
+        <header class="contact-header">
+            <div class="container">
+                <div class="contact-logo">
+                    <h1>⚽ Wilde Liga Bremen - Ansprechpartner</h1>
+                </div>
+                <div class="contact-info">
+                    <span id="userInfo">Angemeldet als: <span id="userName"></span> (<span id="userTeam"></span>)</span>
+                    <button id="logoutBtn" class="btn-secondary">Abmelden</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="contact-main">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Ihre Spiele</h2>
+                    <p>Hier können Sie Spielstände für Ihr Team übermitteln</p>
+                </div>
+                
+                <!-- Season Filter -->
+                <div class="season-filter">
+                    <label for="seasonSelect">Saison:</label>
+                    <select id="seasonSelect">
+                        <option value="">Saison wählen</option>
+                    </select>
+                </div>
+
+                <!-- Matches List -->
+                <div class="matches-container" id="matchesContainer">
+                    <!-- Matches will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Score Submission Modal -->
+    <div id="scoreModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Spielstand übermitteln</h2>
+                <button class="close-btn" onclick="closeModal('scoreModal')">&times;</button>
+            </div>
+            <div id="matchDetails" class="match-details">
+                <!-- Match details will be loaded here -->
+            </div>
+            <form id="scoreForm">
+                <input type="hidden" id="matchId">
+                <div class="score-inputs">
+                    <div class="team-score">
+                        <label for="homeScore" id="homeTeamLabel">Heimteam:</label>
+                        <input type="number" id="homeScore" min="0" required>
+                    </div>
+                    <div class="score-separator">:</div>
+                    <div class="team-score">
+                        <label for="awayScore" id="awayTeamLabel">Auswärtsteam:</label>
+                        <input type="number" id="awayScore" min="0" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="matchNotes">Bemerkungen (optional):</label>
+                    <textarea id="matchNotes" rows="3" placeholder="Besondere Vorkommnisse, Anmerkungen..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('scoreModal')">Abbrechen</button>
+                    <button type="submit" class="btn-primary">Spielstand übermitteln</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="scripts/ansprechpartner.js"></script>
+</body>
+</html>
