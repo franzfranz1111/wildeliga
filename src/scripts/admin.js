@@ -197,8 +197,18 @@ async function loadInitialData() {
 // Season Management
 async function loadSeasons() {
     try {
-        const seasons = await WildeLigaAPI.getSeasons();
-        const currentSeason = await WildeLigaAPI.getCurrentSeason();
+        const { data: seasons, error: seasonsError } = await supabase
+            .from('seasons')
+            .select('*')
+            .order('year', { ascending: false });
+        
+        if (seasonsError) throw seasonsError;
+        
+        const { data: currentSeason, error: currentError } = await supabase
+            .from('seasons')
+            .select('*')
+            .eq('status', 'active')
+            .single();
         
         // Update current season display
         const currentSeasonDisplay = document.getElementById('current-season-display');
@@ -263,7 +273,12 @@ function openSeasonModal() {
 
 async function loadTeamSelection() {
     try {
-        const teams = await WildeLigaAPI.getTeams();
+        const { data: teams, error } = await supabase
+            .from('teams')
+            .select('*')
+            .order('name');
+        
+        if (error) throw error;
         const teamSelection = document.getElementById('teamSelection');
         teamSelection.innerHTML = '';
         
@@ -320,7 +335,18 @@ async function handleSeasonSubmit(event) {
     const doubleRound = document.getElementById('doubleRound').checked;
     
     try {
-        await WildeLigaAPI.createSeason(seasonData, selectedTeams, doubleRound);
+        // Create season with direct Supabase call
+        const { data, error } = await supabase
+            .rpc('create_new_season_with_schedule', {
+                p_season_name: seasonData.name,
+                p_year: seasonData.year,
+                p_start_date: seasonData.start_date,
+                p_end_date: seasonData.end_date,
+                p_team_ids: selectedTeams,
+                p_double_round: doubleRound
+            });
+
+        if (error) throw error;
         showSuccessMessage('Saison erfolgreich erstellt mit automatischem Spielplan');
         closeModal('seasonModal');
         loadSeasons();
@@ -331,7 +357,15 @@ async function handleSeasonSubmit(event) {
 
 async function viewSeasonTeams(seasonId) {
     try {
-        const seasonTeams = await WildeLigaAPI.getSeasonTeams(seasonId);
+        const { data: seasonTeams, error } = await supabase
+            .from('season_teams')
+            .select(`
+                *,
+                team:teams(name)
+            `)
+            .eq('season_id', seasonId);
+        
+        if (error) throw error;
         const teamNames = seasonTeams.map(st => st.team.name).join(', ');
         alert(`Teams in dieser Saison:\n\n${teamNames}`);
     } catch (error) {
@@ -704,7 +738,12 @@ function filterContacts() {
 // Match Management
 async function loadMatches() {
     try {
-        const matches = await WildeLigaAPI.getAllMatches();
+        const { data: matches, error } = await supabase
+            .from('matches')
+            .select('*')
+            .order('matchday', { ascending: false });
+        
+        if (error) throw error;
         renderMatches(matches);
     } catch (error) {
         console.error('Error loading matches:', error);
@@ -1353,7 +1392,12 @@ function openCupModal(cupId = null) {
 
 async function loadCupSeasonOptions() {
     try {
-        const seasons = await WildeLigaAPI.getSeasons();
+        const { data: seasons, error } = await supabase
+            .from('seasons')
+            .select('*')
+            .order('year', { ascending: false });
+        
+        if (error) throw error;
         const select = document.getElementById('cupSeason');
         
         seasons.forEach(season => {
@@ -1369,7 +1413,12 @@ async function loadCupSeasonOptions() {
 
 async function loadCupTeamSelection() {
     try {
-        const teams = await WildeLigaAPI.getTeams();
+        const { data: teams, error } = await supabase
+            .from('teams')
+            .select('*')
+            .order('name');
+        
+        if (error) throw error;
         const teamSelection = document.getElementById('cupTeamSelection');
         teamSelection.innerHTML = '';
         
