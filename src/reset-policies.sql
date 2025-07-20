@@ -33,7 +33,7 @@ ALTER TABLE user_profiles DISABLE ROW LEVEL SECURITY;
 -- Teams: Public read, admin write
 CREATE POLICY "Public read teams" ON teams FOR SELECT TO public USING (true);
 CREATE POLICY "Admin manage teams" ON teams FOR ALL USING (
-    auth.jwt() ->> 'email' IN ('admin@wilde-liga.de', 'admin@example.com')
+    auth.jwt() ->> 'email' IN ('admin@wilde-liga.de', 'stefra2000@gmail.com')
 );
 
 -- Players: Public read, admin write

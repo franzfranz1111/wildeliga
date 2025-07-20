@@ -51,23 +51,37 @@ function initializeEventListeners() {
     // Add buttons
     document.getElementById('addSeasonBtn').addEventListener('click', () => openSeasonModal());
     document.getElementById('addTeamBtn').addEventListener('click', () => openTeamModal());
-    document.getElementById('addContactBtn').addEventListener('click', () => openContactModal());
+    document.getElementById('addCupBtn').addEventListener('click', () => openCupModal());
+
     document.getElementById('addMatchBtn').addEventListener('click', () => openMatchModal());
     document.getElementById('addUserBtn').addEventListener('click', () => openUserModal());
     
-    // Forms
-    document.getElementById('seasonForm').addEventListener('submit', handleSeasonSubmit);
-    document.getElementById('teamForm').addEventListener('submit', handleTeamSubmit);
-    document.getElementById('contactForm').addEventListener('submit', handleContactSubmit);
-    document.getElementById('matchForm').addEventListener('submit', handleMatchSubmit);
-    document.getElementById('userForm').addEventListener('submit', handleUserSubmit);
+    // Forms (safely add event listeners only if elements exist)
+    const seasonForm = document.getElementById('seasonForm');
+    if (seasonForm) seasonForm.addEventListener('submit', handleSeasonSubmit);
     
-    // Filter
-    document.getElementById('contactTeamFilter').addEventListener('change', filterContacts);
-    document.getElementById('userRoleFilter').addEventListener('change', filterUsers);
+    const teamForm = document.getElementById('teamForm');
+    if (teamForm) teamForm.addEventListener('submit', handleTeamSubmit);
+    
+    const cupForm = document.getElementById('cupForm');
+    if (cupForm) cupForm.addEventListener('submit', handleCupSubmit);
+    
+
+    
+    const matchForm = document.getElementById('matchForm');
+    if (matchForm) matchForm.addEventListener('submit', handleMatchSubmit);
+    
+    const userForm = document.getElementById('userForm');
+    if (userForm) userForm.addEventListener('submit', handleUserSubmit);
+    
+    // Filter (safely add event listeners only if elements exist)
+    
+    const userRoleFilter = document.getElementById('userRoleFilter');
+    if (userRoleFilter) userRoleFilter.addEventListener('change', filterUsers);
     
     // Role selection handler
-    document.getElementById('userRole').addEventListener('change', handleRoleChange);
+    const userRole = document.getElementById('userRole');
+    if (userRole) userRole.addEventListener('change', handleRoleChange);
 }
 
 // Login/Logout
@@ -154,18 +168,21 @@ function switchTab(tabName) {
         case 'teams':
             loadTeams();
             break;
-        case 'contacts':
-            loadContacts();
+        case 'cups':
+            loadCups();
             break;
+
         case 'matches':
             loadMatches();
             break;
         case 'users':
             loadUsers();
             break;
-        case 'achievements':
-            loadAchievements();
+        case 'contacts':
+            // Contact management temporarily disabled
+            document.getElementById('contactsList').innerHTML = '<div style="text-align: center; padding: 2rem; color: #666;">Ansprechpartner-Verwaltung wird überarbeitet.</div>';
             break;
+
     }
 }
 
@@ -174,6 +191,7 @@ async function loadInitialData() {
     await loadSeasons();
     await loadTeams();
     await loadTeamOptions();
+    await loadCurrentCup();
 }
 
 // Season Management
@@ -470,50 +488,9 @@ async function handleTeamSubmit(e) {
     }
 }
 
-// Contact Management
-async function loadContacts() {
-    try {
-        const { data, error } = await supabase
-            .from('user_profiles')
-            .select(`
-                *,
-                team:teams(name)
-            `)
-            .eq('role', 'contact_person')
-            .order('name');
-        
-        if (error) throw error;
-        
-        renderContacts(data);
-        await loadTeamsForContactFilter();
-    } catch (error) {
-        console.error('Error loading contacts:', error);
-        showErrorMessage('Fehler beim Laden der Ansprechpartner');
-    }
-}
 
-async function loadTeamsForContactFilter() {
-    try {
-        const { data: teams, error } = await supabase
-            .from('teams')
-            .select('*')
-            .order('name');
-        
-        if (error) throw error;
-        
-        const filter = document.getElementById('contactTeamFilter');
-        filter.innerHTML = '<option value="all">Alle Teams</option>';
-        
-        teams.forEach(team => {
-            const option = document.createElement('option');
-            option.value = team.name;
-            option.textContent = team.name;
-            filter.appendChild(option);
-        });
-    } catch (error) {
-        console.error('Error loading teams for filter:', error);
-    }
-}
+
+
 
 function renderContacts(contacts) {
     const container = document.getElementById('contactsList');
@@ -671,20 +648,45 @@ async function handleContactSubmit(e) {
                 return;
             }
             
-            // Generate a temporary ID for the contact
-            const tempId = crypto.randomUUID();
-            contactData.id = tempId;
-            contactData.temp_password = password; // Store temporarily for manual creation
-            
-            // Create user record first
-            const { error } = await supabase
-                .from('user_profiles')
-                .insert([contactData]);
-            
-            if (error) throw error;
-            
-            showSuccessMessage('Ansprechpartner erfolgreich erstellt. Bitte erstellen Sie den Auth-Benutzer manuell über das Supabase Dashboard.');
-            showInfoMessage(`E-Mail: ${contactData.email}, Passwort: ${password}, ID: ${tempId}`);
+            try {
+                // First create the auth user
+                const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+                    email: contactData.email,
+                    password: password,
+                    email_confirm: true
+                });
+                
+                if (authError) {
+                    // If auth creation fails, try alternative approach
+                    console.warn('Auth user creation failed, falling back to manual process:', authError);
+                    
+                    // Create user profile without auth link (id will be null)
+                    const profileDataWithoutId = { ...contactData };
+                    delete profileDataWithoutId.id;
+                    
+                    const { error: profileError } = await supabase
+                        .from('user_profiles')
+                        .insert([profileDataWithoutId]);
+                    
+                    if (profileError) throw profileError;
+                    
+                    showSuccessMessage('Ansprechpartner-Profil erstellt. Bitte erstellen Sie den Auth-Benutzer manuell über das Supabase Dashboard.');
+                    showInfoMessage(`E-Mail: ${contactData.email}, Passwort: ${password}. Nach dem Erstellen des Auth-Users können Sie das Profil verknüpfen.`);
+                } else {
+                    // Auth user created successfully, now create profile
+                    contactData.id = authData.user.id;
+                    
+                    const { error: profileError } = await supabase
+                        .from('user_profiles')
+                        .insert([contactData]);
+                    
+                    if (profileError) throw profileError;
+                    
+                    showSuccessMessage('Ansprechpartner erfolgreich erstellt mit Auth-User.');
+                }
+            } catch (createError) {
+                throw createError;
+            }
         }
         
         closeModal('contactModal');
@@ -832,11 +834,7 @@ function showInfoMessage(message) {
     showAlert('Info', message, 'info');
 }
 
-// Load achievements (placeholder)
-async function loadAchievements() {
-    // Implementation for achievements management
-    console.log('Loading achievements...');
-}
+
 
 // User Management
 async function loadUsers() {
@@ -1067,8 +1065,6 @@ async function loadTeamOptions() {
 // Global functions for onclick handlers
 window.editTeam = editTeam;
 window.deleteTeam = deleteTeam;
-window.editPlayer = editPlayer;
-window.deletePlayer = deletePlayer;
 window.editMatch = openMatchModal;
 window.deleteMatch = async function(matchId) {
     if (confirm('Spiel wirklich löschen?')) {
@@ -1091,3 +1087,488 @@ window.deleteMatch = async function(matchId) {
 window.editUser = editUser;
 window.deleteUser = deleteUser;
 window.closeModal = closeModal;
+
+// Cup Management Functions
+async function loadCurrentCup() {
+    try {
+        console.log('Loading current cup...');
+        
+        // Get the active cup
+        const { data: currentCups, error } = await supabase
+            .from('cups')
+            .select('*')
+            .eq('status', 'active')
+            .order('year', { ascending: false })
+            .limit(1);
+            
+        const currentCup = currentCups && currentCups.length > 0 ? currentCups[0] : null;
+
+        const currentCupDisplay = document.getElementById('current-cup-display');
+        
+        if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+            throw error;
+        }
+
+        if (currentCup) {
+            // Get season name and team count separately
+            let seasonName = 'Keine Saison';
+            if (currentCup.season_id) {
+                const { data: season } = await supabase
+                    .from('seasons')
+                    .select('name')
+                    .eq('id', currentCup.season_id)
+                    .single();
+                seasonName = season?.name || 'Keine Saison';
+            }
+            
+            const teamCount = await getCupTeamCount(currentCup.id);
+            currentCupDisplay.innerHTML = `
+                <div class="current-item">
+                    <div class="current-info">
+                        <h4>${currentCup.name}</h4>
+                        <p>${seasonName} • ${teamCount} Teams • ${getRoundDisplayName(currentCup.current_round)}</p>
+                    </div>
+                    <div class="current-actions">
+                        <button onclick="editCup('${currentCup.id}')" class="btn btn-sm btn-secondary">Bearbeiten</button>
+                        <a href="pokal.html" class="btn btn-sm btn-primary">Ansehen</a>
+                    </div>
+                </div>
+            `;
+        } else {
+            currentCupDisplay.innerHTML = `
+                <div class="no-current">
+                    <p>Kein aktiver Pokal</p>
+                    <button onclick="openCupModal()" class="btn btn-primary">Neuen Pokal erstellen</button>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error loading current cup:', error);
+        const currentCupDisplay = document.getElementById('current-cup-display');
+        if (currentCupDisplay) {
+            currentCupDisplay.innerHTML = '<div class="error">Fehler beim Laden des aktuellen Pokals</div>';
+        }
+    }
+}
+
+async function getCupTeamCount(cupId) {
+    try {
+        const { count, error } = await supabase
+            .from('cup_teams')
+            .select('*', { count: 'exact', head: true })
+            .eq('cup_id', cupId);
+        
+        if (error) throw error;
+        return count || 0;
+    } catch (error) {
+        console.error('Error getting cup team count:', error);
+        return 0;
+    }
+}
+
+async function loadCups() {
+    try {
+        const { data: cups, error } = await supabase
+            .from('cups')
+            .select('*')
+            .order('year', { ascending: false });
+
+        if (error) throw error;
+
+        const cupsGrid = document.getElementById('cupsGrid');
+        if (cups && cups.length > 0) {
+            cupsGrid.innerHTML = cups.map(cup => `
+                <div class="season-card">
+                    <div class="season-header">
+                        <div class="season-info">
+                            <h3>${cup.name}</h3>
+                            <p>Keine Saison • ${cup.year}</p>
+                        </div>
+                        <div class="season-status ${cup.status}">
+                            ${getCupStatusText(cup.status)}
+                        </div>
+                    </div>
+                    <div class="season-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Runde:</span>
+                            <span class="detail-value">${getRoundDisplayName(cup.current_round)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Max. Teams:</span>
+                            <span class="detail-value">${cup.max_teams}</span>
+                        </div>
+
+                        ${cup.start_date ? `
+                        <div class="detail-item">
+                            <span class="detail-label">Start:</span>
+                            <span class="detail-value">${new Date(cup.start_date).toLocaleDateString('de-DE')}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                    <div class="season-actions">
+                        <button onclick="editCup('${cup.id}')" class="btn btn-sm btn-secondary">Bearbeiten</button>
+                        <button onclick="deleteCup('${cup.id}')" class="btn btn-sm btn-danger">Löschen</button>
+                        <a href="pokal.html" class="btn btn-sm btn-primary">Ansehen</a>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            cupsGrid.innerHTML = '<div class="no-data">Keine Pokale gefunden</div>';
+        }
+        
+        // Also update current cup display
+        await loadCurrentCup();
+    } catch (error) {
+        console.error('Error loading cups:', error);
+        showErrorMessage('Fehler beim Laden der Pokale: ' + error.message);
+    }
+}
+
+function getCupStatusText(status) {
+    const statusMap = {
+        'planned': 'Geplant',
+        'active': 'Aktiv',
+        'completed': 'Abgeschlossen'
+    };
+    return statusMap[status] || status;
+}
+
+function getRoundDisplayName(round) {
+    const rounds = {
+        'round_1': '1. Runde',
+        'round_2': 'Achtelfinale',
+        'quarter_final': 'Viertelfinale',
+        'semi_final': 'Halbfinale',
+        'final': 'Finale'
+    };
+    return rounds[round] || round || 'Nicht gestartet';
+}
+
+function openCupModal(cupId = null) {
+    const isEdit = cupId !== null;
+    
+    // Create modal HTML
+    const modalHtml = `
+        <div id="cupModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>${isEdit ? 'Pokal bearbeiten' : 'Neuer Pokal'}</h2>
+                    <span class="close" onclick="closeModal('cupModal')">&times;</span>
+                </div>
+                <form id="cupForm">
+                    <input type="hidden" id="cupId" value="${cupId || ''}">
+                    
+                    <div class="form-group">
+                        <label for="cupName">Name des Pokals</label>
+                        <input type="text" id="cupName" required placeholder="z.B. Wilde Liga Pokal 2025/26">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cupYear">Jahr</label>
+                            <input type="number" id="cupYear" required min="2020" max="2030" value="${new Date().getFullYear()}">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cupSeason">Saison</label>
+                            <select id="cupSeason">
+                                <option value="">Keine Saison zugeordnet</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cupStatus">Status</label>
+                            <select id="cupStatus" required>
+                                <option value="planned">Geplant</option>
+                                <option value="active">Aktiv</option>
+                                <option value="completed">Abgeschlossen</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cupMaxTeams">Max. Teams</label>
+                            <select id="cupMaxTeams" required>
+                                <option value="8">8 Teams</option>
+                                <option value="16" selected>16 Teams</option>
+                                <option value="32">32 Teams</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cupStartDate">Startdatum</label>
+                            <input type="date" id="cupStartDate">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cupFinalDate">Finale Datum</label>
+                            <input type="date" id="cupFinalDate">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Teilnehmende Teams</label>
+                        <div class="team-selection-header">
+                            <button type="button" onclick="selectAllCupTeams()" class="btn-link">Alle auswählen</button>
+                            <button type="button" onclick="deselectAllCupTeams()" class="btn-link">Alle abwählen</button>
+                        </div>
+                        <div id="cupTeamSelection" class="team-selection">
+                            <!-- Teams werden hier geladen -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="closeModal('cupModal')">Abbrechen</button>
+                        <button type="submit" class="btn-primary">${isEdit ? 'Pokal aktualisieren' : 'Pokal erstellen'}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal
+    const existingModal = document.getElementById('cupModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to page
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // Load season options and teams
+    loadCupSeasonOptions();
+    loadCupTeamSelection();
+    
+    // If editing, load cup data
+    if (isEdit) {
+        loadCupData(cupId);
+    }
+    
+    // Show modal
+    document.getElementById('cupModal').style.display = 'block';
+}
+
+async function loadCupSeasonOptions() {
+    try {
+        const seasons = await WildeLigaAPI.getSeasons();
+        const select = document.getElementById('cupSeason');
+        
+        seasons.forEach(season => {
+            const option = document.createElement('option');
+            option.value = season.id;
+            option.textContent = season.name;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error loading season options:', error);
+    }
+}
+
+async function loadCupTeamSelection() {
+    try {
+        const teams = await WildeLigaAPI.getTeams();
+        const teamSelection = document.getElementById('cupTeamSelection');
+        teamSelection.innerHTML = '';
+        
+        teams.forEach(team => {
+            const teamCheckbox = document.createElement('div');
+            teamCheckbox.className = 'team-checkbox';
+            teamCheckbox.innerHTML = `
+                <label for="cupTeam-${team.id}">
+                    <input type="checkbox" value="${team.id}" id="cupTeam-${team.id}">
+                    ${team.name}
+                </label>
+            `;
+            teamSelection.appendChild(teamCheckbox);
+        });
+    } catch (error) {
+        console.error('Error loading teams for cup:', error);
+        showErrorMessage('Fehler beim Laden der Teams: ' + error.message);
+    }
+}
+
+function selectAllCupTeams() {
+    const checkboxes = document.querySelectorAll('#cupTeamSelection input[type="checkbox"]');
+    checkboxes.forEach(checkbox => checkbox.checked = true);
+}
+
+function deselectAllCupTeams() {
+    const checkboxes = document.querySelectorAll('#cupTeamSelection input[type="checkbox"]');
+    checkboxes.forEach(checkbox => checkbox.checked = false);
+}
+
+async function loadCupData(cupId) {
+    try {
+        const { data: cup, error } = await supabase
+            .from('cups')
+            .select('*')
+            .eq('id', cupId)
+            .single();
+
+        if (error) throw error;
+
+        // Fill form fields
+        document.getElementById('cupName').value = cup.name;
+        document.getElementById('cupYear').value = cup.year;
+        document.getElementById('cupSeason').value = cup.season_id || '';
+        document.getElementById('cupStatus').value = cup.status;
+        document.getElementById('cupMaxTeams').value = cup.max_teams;
+        document.getElementById('cupStartDate').value = cup.start_date || '';
+        document.getElementById('cupFinalDate').value = cup.final_date || '';
+        
+        // Load selected teams
+        const { data: cupTeams, error: cupTeamsError } = await supabase
+            .from('cup_teams')
+            .select('team_id')
+            .eq('cup_id', cupId);
+            
+        if (cupTeamsError) throw cupTeamsError;
+        
+        // Check the selected teams
+        cupTeams.forEach(ct => {
+            const checkbox = document.getElementById(`cupTeam-${ct.team_id}`);
+            if (checkbox) checkbox.checked = true;
+        });
+    } catch (error) {
+        console.error('Error loading cup data:', error);
+        showErrorMessage('Fehler beim Laden der Pokal-Daten');
+    }
+}
+
+async function handleCupSubmit(e) {
+    e.preventDefault();
+    
+    const cupId = document.getElementById('cupId').value;
+    const isEdit = cupId !== '';
+    
+    const cupData = {
+        name: document.getElementById('cupName').value,
+        year: parseInt(document.getElementById('cupYear').value),
+        season_id: document.getElementById('cupSeason').value || null,
+        status: document.getElementById('cupStatus').value,
+        max_teams: parseInt(document.getElementById('cupMaxTeams').value),
+        start_date: document.getElementById('cupStartDate').value || null,
+        final_date: document.getElementById('cupFinalDate').value || null
+    };
+    
+    // Validation
+    if (!cupData.name.trim()) {
+        showErrorMessage('Bitte geben Sie einen Pokal-Namen ein.');
+        return;
+    }
+    
+    if (!cupData.year || cupData.year < 2000 || cupData.year > 2100) {
+        showErrorMessage('Bitte geben Sie ein gültiges Jahr ein.');
+        return;
+    }
+    
+    if (!cupData.max_teams || cupData.max_teams < 2) {
+        showErrorMessage('Mindestens 2 Teams sind erforderlich.');
+        return;
+    }
+    
+    // Get selected teams
+    const selectedTeams = [];
+    const checkboxes = document.querySelectorAll('#cupTeamSelection input[type="checkbox"]:checked');
+    checkboxes.forEach(checkbox => {
+        selectedTeams.push(checkbox.value);
+    });
+    
+    // Validate team selection for new cups
+    if (!isEdit && selectedTeams.length === 0) {
+        showErrorMessage('Bitte wählen Sie mindestens ein Team aus.');
+        return;
+    }
+    
+    if (selectedTeams.length > cupData.max_teams) {
+        showErrorMessage(`Sie können maximal ${cupData.max_teams} Teams auswählen.`);
+        return;
+    }
+    
+    try {
+        let finalCupId = cupId;
+        
+        if (isEdit) {
+            // Update cup
+            const { error } = await supabase
+                .from('cups')
+                .update(cupData)
+                .eq('id', cupId);
+            
+            if (error) throw error;
+            
+            // Remove existing team associations
+            const { error: deleteError } = await supabase
+                .from('cup_teams')
+                .delete()
+                .eq('cup_id', cupId);
+                
+            if (deleteError) throw deleteError;
+        } else {
+            // Create new cup
+            const { data, error } = await supabase
+                .from('cups')
+                .insert([cupData])
+                .select()
+                .single();
+            
+            if (error) throw error;
+            finalCupId = data.id;
+        }
+        
+        // Add team associations
+        if (selectedTeams.length > 0) {
+            const cupTeamData = selectedTeams.map(teamId => ({
+                cup_id: finalCupId,
+                team_id: teamId
+            }));
+            
+            const { error: teamError } = await supabase
+                .from('cup_teams')
+                .insert(cupTeamData);
+                
+            if (teamError) throw teamError;
+        }
+        
+        closeModal('cupModal');
+        await loadCups();
+        await loadCurrentCup();
+        showSuccessMessage(isEdit ? 'Pokal erfolgreich aktualisiert' : 'Pokal erfolgreich erstellt');
+    } catch (error) {
+        console.error('Error saving cup:', error);
+        showErrorMessage('Fehler beim Speichern des Pokals: ' + error.message);
+    }
+}
+
+async function editCup(cupId) {
+    openCupModal(cupId);
+}
+
+async function deleteCup(cupId) {
+    if (confirm('Pokal wirklich löschen? Alle zugehörigen Spiele werden ebenfalls gelöscht.')) {
+        try {
+            const { error } = await supabase
+                .from('cups')
+                .delete()
+                .eq('id', cupId);
+            
+            if (error) throw error;
+            
+            await loadCups();
+            await loadCurrentCup();
+            showSuccessMessage('Pokal erfolgreich gelöscht');
+        } catch (error) {
+            console.error('Error deleting cup:', error);
+            showErrorMessage('Fehler beim Löschen des Pokals');
+        }
+    }
+}
+
+// Add cup functions to global scope
+window.editCup = editCup;
+window.deleteCup = deleteCup;
+window.selectAllCupTeams = selectAllCupTeams;
+window.deselectAllCupTeams = deselectAllCupTeams;

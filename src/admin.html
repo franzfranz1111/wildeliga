@@ -55,10 +55,9 @@
                 <div class="admin-tabs">
                     <button class="tab-btn active" data-tab="seasons">Saisons</button>
                     <button class="tab-btn" data-tab="teams">Teams</button>
-                    <button class="tab-btn" data-tab="contacts">Ansprechpartner</button>
+                    <button class="tab-btn" data-tab="cups">🏆 Pokale</button>
                     <button class="tab-btn" data-tab="matches">Spiele</button>
                     <button class="tab-btn" data-tab="users">Benutzer</button>
-                    <button class="tab-btn" data-tab="achievements">Erfolge</button>
                 </div>
 
                 <!-- Seasons Management -->
@@ -99,25 +98,31 @@
                     </div>
                 </div>
 
-                <!-- Ansprechpartner Management -->
-                <div id="contactsTab" class="tab-content">
+                <!-- Cups Management -->
+                <div id="cupsTab" class="tab-content">
                     <div class="admin-section">
                         <div class="section-header">
-                            <h2>Ansprechpartner verwalten</h2>
-                            <button id="addContactBtn" class="btn-primary">Neuer Ansprechpartner</button>
+                            <h2>Pokale verwalten</h2>
+                            <div class="section-actions">
+                                <a href="pokal.html" class="btn btn-secondary">
+                                    🏆 Pokal-Übersicht
+                                </a>
+                                <button id="addCupBtn" class="btn-primary">Neuer Pokal</button>
+                            </div>
                         </div>
                         
-                        <div class="filter-section">
-                            <select id="contactTeamFilter">
-                                <option value="all">Alle Teams</option>
-                            </select>
+                        <div class="current-cup-info">
+                            <h3>Aktiver Pokal</h3>
+                            <div id="current-cup-display">Wird geladen...</div>
                         </div>
                         
-                        <div class="contacts-list" id="contactsList">
-                            <!-- Ansprechpartner werden hier geladen -->
+                        <div class="cups-grid" id="cupsGrid">
+                            <!-- Cups will be loaded here -->
                         </div>
                     </div>
                 </div>
+
+
 
                 <!-- Matches Management -->
                 <div id="matchesTab" class="tab-content">
@@ -170,19 +175,7 @@
                     </div>
                 </div>
 
-                <!-- Achievements Management -->
-                <div id="achievementsTab" class="tab-content">
-                    <div class="admin-section">
-                        <div class="section-header">
-                            <h2>Erfolge verwalten</h2>
-                            <button id="addAchievementBtn" class="btn-primary">Neuer Erfolg</button>
-                        </div>
-                        
-                        <div class="achievements-list" id="achievementsList">
-                            <!-- Achievements will be loaded here -->
-                        </div>
-                    </div>
-                </div>
+
             </div>
         </main>
     </div>
@@ -232,45 +225,7 @@
         </div>
     </div>
 
-    <!-- Contact Modal -->
-    <div id="contactModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="contactModalTitle">Ansprechpartner bearbeiten</h2>
-                <button class="close-btn" onclick="closeModal('contactModal')">&times;</button>
-            </div>
-            <form id="contactForm">
-                <input type="hidden" id="contactId">
-                <div class="form-group">
-                    <label for="contactTeam">Team:</label>
-                    <select id="contactTeam" required>
-                        <option value="">Team wählen</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="contactName">Name:</label>
-                    <input type="text" id="contactName" required>
-                </div>
-                <div class="form-group">
-                    <label for="contactEmail">E-Mail:</label>
-                    <input type="email" id="contactEmail" required>
-                </div>
-                <div class="form-group">
-                    <label for="contactPhone">Telefon:</label>
-                    <input type="tel" id="contactPhone">
-                </div>
-                <div class="form-group">
-                    <label for="contactPassword">Passwort:</label>
-                    <input type="password" id="contactPassword" minlength="6">
-                    <small class="form-help">Leer lassen, um Passwort nicht zu ändern</small>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn-secondary" onclick="closeModal('contactModal')">Abbrechen</button>
-                    <button type="submit" class="btn-primary">Speichern</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    
 
     <!-- Match Modal -->
     <div id="matchModal" class="modal">

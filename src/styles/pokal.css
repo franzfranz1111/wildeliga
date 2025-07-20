@@ -1,0 +1,400 @@
+/* Pokal-specific styles */
+
+.pokal-hero {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    color: #333;
+    text-align: center;
+    padding: 3rem 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+}
+
+.pokal-hero h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.pokal-stats {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin-top: 2rem;
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat-number {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Cup Selector */
+.cup-selector-section {
+    margin-bottom: 2rem;
+}
+
+.cup-selector {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.cup-selector label {
+    font-weight: 600;
+    color: #333;
+}
+
+.cup-selector select {
+    padding: 0.5rem 1rem;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    min-width: 200px;
+}
+
+/* Tournament Bracket */
+.bracket-section {
+    margin-bottom: 3rem;
+}
+
+.bracket-controls {
+    display: flex;
+    gap: 1rem;
+}
+
+.bracket-container {
+    overflow-x: auto;
+    padding: 1rem 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #f9f9f9;
+}
+
+.bracket {
+    display: flex;
+    gap: 2rem;
+    padding: 2rem;
+    min-width: max-content;
+}
+
+.bracket-round {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: 200px;
+}
+
+.round-title {
+    text-align: center;
+    font-weight: 600;
+    color: #333;
+    padding: 0.5rem;
+    background: #fff;
+    border-radius: 6px;
+    border: 2px solid #ddd;
+    margin-bottom: 1rem;
+}
+
+.bracket-match {
+    background: #fff;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.bracket-match:hover {
+    border-color: #4CAF50;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+}
+
+.bracket-match.completed {
+    border-color: #4CAF50;
+    background: #f8fff8;
+}
+
+.bracket-match.scheduled {
+    border-color: #FFA500;
+    background: #fff8f0;
+}
+
+.match-teams {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.match-team {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 4px;
+    background: #f5f5f5;
+}
+
+.match-team.winner {
+    background: #d4edda;
+    font-weight: 600;
+    color: #155724;
+}
+
+.match-team.loser {
+    background: #f8d7da;
+    color: #721c24;
+    opacity: 0.7;
+}
+
+.team-name {
+    font-weight: 500;
+}
+
+.team-score {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.match-info {
+    text-align: center;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.match-date {
+    font-weight: 500;
+}
+
+.penalty-info {
+    font-size: 0.8rem;
+    color: #666;
+    font-style: italic;
+    margin-top: 0.25rem;
+}
+
+/* Bracket Connectors */
+.bracket-round::after {
+    content: '';
+    position: absolute;
+    right: -1rem;
+    top: 50%;
+    width: 2rem;
+    height: 2px;
+    background: #ddd;
+    z-index: 1;
+}
+
+.bracket-round:last-child::after {
+    display: none;
+}
+
+/* Cup Results */
+.filter-controls {
+    display: flex;
+    gap: 1rem;
+}
+
+.filter-controls select {
+    padding: 0.5rem 1rem;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.results-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.result-item {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.result-item:hover {
+    border-color: #4CAF50;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);
+}
+
+.result-match {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.result-teams {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.result-score {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #4CAF50;
+}
+
+.result-info {
+    text-align: right;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.result-round {
+    background: #4CAF50;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Teams Grid */
+.teams-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.team-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.team-card:hover {
+    border-color: #4CAF50;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.1);
+    transform: translateY(-2px);
+}
+
+.team-card.eliminated {
+    opacity: 0.6;
+    background: #f8f8f8;
+}
+
+.team-card.champion {
+    border-color: #FFD700;
+    background: linear-gradient(135deg, #FFF9C4, #FFECB3);
+}
+
+.team-name-card {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.team-status {
+    font-size: 0.9rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.team-status.active {
+    color: #4CAF50;
+    font-weight: 600;
+}
+
+.team-status.eliminated {
+    color: #f44336;
+}
+
+.team-status.champion {
+    color: #FF9800;
+    font-weight: 700;
+}
+
+/* Fullscreen Bracket Modal */
+.bracket-modal-content {
+    width: 95vw;
+    height: 90vh;
+    max-width: none;
+    max-height: none;
+}
+
+.bracket-fullscreen {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    padding: 1rem;
+}
+
+.bracket-fullscreen .bracket {
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* Loading States */
+.loading {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+}
+
+.loading p {
+    font-size: 1.1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .pokal-stats {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .bracket {
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .bracket-round {
+        min-width: 180px;
+    }
+    
+    .teams-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .result-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .cup-selector {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* Round-specific colors */
+.round-final .round-title { background: #FFD700; color: #333; }
+.round-semi_final .round-title { background: #C0C0C0; color: #333; }
+.round-quarter_final .round-title { background: #CD7F32; color: white; }
+.round-round_2 .round-title { background: #4CAF50; color: white; }
+.round-round_1 .round-title { background: #2196F3; color: white; }

@@ -805,16 +805,14 @@
 
 /* Players and Matches Lists */
 .players-list,
-.matches-list,
-.achievements-list {
+.matches-list {
     display: flex;
     flex-direction: column;
     gap: 1rem;
 }
 
 .player-item,
-.match-item,
-.achievement-item {
+.match-item {
     background: var(--light-gray);
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -825,21 +823,18 @@
 }
 
 .player-info,
-.match-info,
-.achievement-info {
+.match-info {
     flex: 1;
 }
 
 .player-info h4,
-.match-info h4,
-.achievement-info h4 {
+.match-info h4 {
     margin: 0 0 0.25rem 0;
     color: var(--primary-color);
 }
 
 .player-info p,
-.match-info p,
-.achievement-info p {
+.match-info p {
     margin: 0;
     color: #666;
     font-size: 0.9rem;
@@ -1072,6 +1067,145 @@
     margin: 0;
 }
 
+.team-selection-header {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0;
+}
+
+.btn-link:hover {
+    color: var(--accent-color);
+}
+
+/* Cup/Pokal Management */
+.cups-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.cup-card {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: var(--transition);
+}
+
+.cup-card:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+}
+
+.cup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.cup-header h3 {
+    margin: 0;
+    color: var(--primary-color);
+}
+
+.cup-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.cup-status.planned {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.cup-status.active {
+    background: #e8f5e8;
+    color: #2e7d32;
+}
+
+.cup-status.completed {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.cup-info {
+    margin-bottom: 1rem;
+}
+
+.cup-info p {
+    margin: 0.25rem 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.cup-info .info-label {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.cup-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.current-cup-info {
+    background: var(--light-gray);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.current-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.current-info h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--primary-color);
+}
+
+.current-info p {
+    margin: 0.25rem 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.current-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.no-current {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+}
+
+.no-current h3 {
+    margin-bottom: 0.5rem;
+    color: #999;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .admin-header .container {
@@ -1089,7 +1223,8 @@
         align-items: stretch;
     }
     
-    .teams-grid {
+    .teams-grid,
+    .cups-grid {
         grid-template-columns: 1fr;
     }
     
@@ -1098,8 +1233,7 @@
     }
     
     .player-item,
-    .match-item,
-    .achievement-item {
+    .match-item {
         flex-direction: column;
         align-items: stretch;
         gap: 1rem;
@@ -1107,6 +1241,21 @@
     
     .item-actions {
         justify-content: flex-end;
+    }
+    
+    .current-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .cup-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .cup-actions button {
+        margin-bottom: 0.5rem;
     }
 }
 

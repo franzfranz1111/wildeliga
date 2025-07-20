@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wilde Liga Pokal - Bremen</title>
+    <link rel="stylesheet" href="styles/wilde-liga.css">
+    <link rel="stylesheet" href="styles/pokal.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <h1>🏆 Wilde Liga Pokal</h1>
+                <p>Das K.O.-Turnier der Wilde Liga Bremen</p>
+            </div>
+            <nav class="nav">
+                <ul>
+                    <li><a href="index.html">Liga</a></li>
+                    <li><a href="pokal.html" class="active">Pokal</a></li>
+                    <li><a href="#bracket">Turnierbaum</a></li>
+                    <li><a href="#ergebnisse">Ergebnisse</a></li>
+                    <li><a href="#teams">Teams</a></li>
+                    <li><a href="login.html" class="login-link">Login</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero pokal-hero" id="home">
+                <h2>Wilde Liga Pokal 2024/25</h2>
+                <p>16 Teams kämpfen im K.O.-System um den begehrten Pokal. Jeder gegen jeden - nur der Stärkste gewinnt!</p>
+                <div class="pokal-stats">
+                    <div class="stat">
+                        <span class="stat-number" id="teams-count">16</span>
+                        <span class="stat-label">Teams</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number" id="current-round">Achtelfinale</span>
+                        <span class="stat-label">Aktuelle Runde</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number" id="matches-played">8</span>
+                        <span class="stat-label">Spiele gespielt</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Cup Selector -->
+            <section class="cup-selector-section">
+                <div class="section-header">
+                    <h2>Pokal auswählen</h2>
+                    <div class="cup-selector">
+                        <label for="cup-select">Turnier:</label>
+                        <select id="cup-select">
+                            <option value="">Lade Pokale...</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tournament Bracket -->
+            <section class="bracket-section" id="bracket">
+                <div class="section-header">
+                    <h2>Turnierbaum</h2>
+                    <div class="bracket-controls">
+                        <button id="expand-bracket" class="btn btn-secondary">Vollbild</button>
+                    </div>
+                </div>
+                <div class="bracket-container">
+                    <div class="bracket" id="tournament-bracket">
+                        <!-- Bracket will be generated dynamically -->
+                        <div class="loading">
+                            <p>Lade Turnierbaum...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Cup Results -->
+            <section class="cup-results-section" id="ergebnisse">
+                <div class="section-header">
+                    <h2>Pokal-Ergebnisse</h2>
+                    <div class="filter-controls">
+                        <select id="round-filter">
+                            <option value="">Alle Runden</option>
+                            <option value="final">Finale</option>
+                            <option value="semi_final">Halbfinale</option>
+                            <option value="quarter_final">Viertelfinale</option>
+                            <option value="round_2">Achtelfinale</option>
+                            <option value="round_1">1. Runde</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="results-container" id="cup-results">
+                    <div class="loading">
+                        <p>Lade Ergebnisse...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Participating Teams -->
+            <section class="cup-teams-section" id="teams">
+                <div class="section-header">
+                    <h2>Teilnehmende Teams</h2>
+                </div>
+                <div class="teams-grid" id="cup-teams">
+                    <div class="loading">
+                        <p>Lade Teams...</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Wilde Liga Bremen. Alle Rechte vorbehalten.</p>
+        </div>
+    </footer>
+
+    <!-- Modal for Fullscreen Bracket -->
+    <div id="bracket-modal" class="modal">
+        <div class="modal-content bracket-modal-content">
+            <div class="modal-header">
+                <h2>Turnierbaum - Vollbild</h2>
+                <span class="close" id="close-bracket-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="fullscreen-bracket" class="bracket-fullscreen">
+                    <!-- Fullscreen bracket content -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/pokal.js"></script>
+</body>
+</html>

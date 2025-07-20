@@ -522,11 +522,25 @@ body {
   font-size: 1.3rem;
 }
 
-.team-position {
-  color: var(--accent-color);
+.team-status {
   font-weight: 600;
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.team-card.active .team-status {
+  color: var(--primary-color);
+}
+
+.team-card.inactive {
+  opacity: 0.7;
+}
+
+.team-card.inactive .team-status {
+  color: #666;
 }
 
 .team-description {

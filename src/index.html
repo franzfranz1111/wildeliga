@@ -25,6 +25,7 @@
                     <li><a href="#tabelle">Tabelle</a></li>
                     <li><a href="#ergebnisse">Ergebnisse</a></li>
                     <li><a href="#termine">Termine</a></li>
+                    <li><a href="pokal.html" class="pokal-link">Pokal</a></li>
                     <li><a href="#teams">Teams</a></li>
                     <li><a href="login.html" class="login-link">Login</a></li>
                 </ul>
@@ -474,85 +475,10 @@
             <!-- Teams Section -->
             <section class="teams-section" id="teams">
                 <h2>Unsere Teams</h2>
-                <div class="teams-grid">
-                    <div class="team-card">
-                        <div class="team-logo">⚽</div>
-                        <h3>FC Werdersee</h3>
-                        <p class="team-position">1. Platz · 31 Punkte</p>
-                        <p class="team-description">Tabellenführer mit starker Offensive</p>
-                        <a href="teams/fc-werdersee.html" class="team-link">Team kennenlernen</a>
-                    </div>
-                    
-                    <div class="team-card">
-                        <div class="team-logo">⚽</div>
-                        <h3>SV Neustadt</h3>
-                        <p class="team-position">2. Platz · 26 Punkte</p>
-                        <p class="team-description">Erfahrenes Team mit starker Defensive</p>
-                        <a href="teams/sv-neustadt.html" class="team-link">Team kennenlernen</a>
-                    </div>
-                    
-                    <div class="team-card">
-                        <div class="team-logo">⚽</div>
-                        <h3>Bremer SV</h3>
-                        <p class="team-position">3. Platz · 24 Punkte</p>
-                        <p class="team-description">Traditioneller Verein mit jungen Talenten</p>
-                        <a href="teams/bremer-sv.html" class="team-link">Team kennenlernen</a>
-                    </div>
-                    
-                    <div class="team-card">
-                        <div class="team-logo">⚽</div>
-                        <h3>FC Vahr</h3>
-                        <p class="team-position">4. Platz · 20 Punkte</p>
-                        <p class="team-description">Kampfstarkes Team aus dem Stadtteil</p>
-                        <a href="teams/fc-vahr.html" class="team-link">Team kennenlernen</a>
-                    </div>
-                    
-                    <div class="team-card">
-                        <div class="team-logo">⚽</div>
-                        <h3>TSV Findorff</h3>
-                        <p class="team-position">5. Platz · 18 Punkte</p>
-                        <p class="team-description">Solide Mittelfeldmannschaft</p>
-                        <a href="teams/tsv-findorff.html" class="team-link">Team kennenlernen</a>
-                    </div>
-                    
-                    <div class="team-card">
-                        <div class="team-logo">⚽</div>
-                        <h3>SG Aumund</h3>
-                        <p class="team-position">6. Platz · 16 Punkte</p>
-                        <p class="team-description">Aufstrebende Spielgemeinschaft</p>
-                        <a href="teams/sg-aumund.html" class="team-link">Team kennenlernen</a>
-                    </div>
-                    
-                    <div class="team-card">
-                        <div class="team-logo">⚽</div>
-                        <h3>FC Borgfeld</h3>
-                        <p class="team-position">7. Platz · 12 Punkte</p>
-                        <p class="team-description">Kämpferisches Team mit Herz</p>
-                        <a href="teams/fc-borgfeld.html" class="team-link">Team kennenlernen</a>
-                    </div>
-                    
-                    <div class="team-card">
-                        <div class="team-logo">⚽</div>
-                        <h3>SV Grohn</h3>
-                        <p class="team-position">8. Platz · 10 Punkte</p>
-                        <p class="team-description">Unentschieden-Spezialisten</p>
-                        <a href="teams/sv-grohn.html" class="team-link">Team kennenlernen</a>
-                    </div>
-                    
-                    <div class="team-card">
-                        <div class="team-logo">⚽</div>
-                        <h3>FC Schwachhausen</h3>
-                        <p class="team-position">9. Platz · 6 Punkte</p>
-                        <p class="team-description">Junge Mannschaft im Aufbau</p>
-                        <a href="teams/fc-schwachhausen.html" class="team-link">Team kennenlernen</a>
-                    </div>
-                    
-                    <div class="team-card">
-                        <div class="team-logo">⚽</div>
-                        <h3>TSV Lesum</h3>
-                        <p class="team-position">10. Platz · 3 Punkte</p>
-                        <p class="team-description">Neues Team mit viel Potential</p>
-                        <a href="teams/tsv-lesum.html" class="team-link">Team kennenlernen</a>
+                <div class="teams-grid" id="teams-grid">
+                    <!-- Teams werden dynamisch geladen -->
+                    <div class="loading">
+                        <p>Lade Teams...</p>
                     </div>
                 </div>
             </section>
@@ -688,7 +614,7 @@
                         const row = `
                             <tr class="${isChampion ? 'champion' : ''} ${isRelegation ? 'relegation' : ''}">
                                 <td>${position}</td>
-                                <td class="team-name">${team.name}</td>
+                                <td class="team-name">${team.team_name}</td>
                                 <td>${team.games_played}</td>
                                 <td>${team.wins}</td>
                                 <td>${team.draws}</td>
@@ -815,33 +741,34 @@
         // Load teams from database
         async function loadTeams() {
             try {
-                const teams = await WildeLigaAPI.getTeams();
-                const standings = await WildeLigaAPI.getStandings();
-                const teamsGrid = document.querySelector('.teams-grid');
+                const teams = await WildeLigaAPI.getTeamsWithStatus();
+                const teamsGrid = document.getElementById('teams-grid');
                 
                 if (teams && teams.length > 0) {
                     teamsGrid.innerHTML = '';
                     
                     teams.forEach(team => {
-                        // Find team position in standings
-                        const standingInfo = standings.find(s => s.name === team.name);
-                        const position = standingInfo ? standings.indexOf(standingInfo) + 1 : '-';
-                        const points = standingInfo ? standingInfo.points : 0;
+                        const statusClass = team.isActive ? 'active' : 'inactive';
+                        const statusIcon = team.isActive ? '✅' : '⏸️';
                         
                         const teamHtml = `
-                            <div class="team-card">
+                            <div class="team-card ${statusClass}">
                                 <div class="team-logo">⚽</div>
                                 <h3>${team.name}</h3>
-                                <p class="team-position">${position}. Platz · ${points} Punkte</p>
-                                <p class="team-description">${team.description}</p>
-                                <a href="teams/${team.name.toLowerCase().replace(/\s+/g, '-')}.html" class="team-link">Team kennenlernen</a>
+                                <p class="team-status">${statusIcon} ${team.status}</p>
+                                <p class="team-description">${team.description || 'Traditioneller Verein aus Bremen'}</p>
+                                <a href="teams/${team.name.toLowerCase().replace(/\s+/g, '-').replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue').replace('ß', 'ss')}.html" class="team-link">Team kennenlernen</a>
                             </div>
                         `;
                         teamsGrid.innerHTML += teamHtml;
                     });
+                } else {
+                    teamsGrid.innerHTML = '<div class="no-teams">Keine Teams gefunden</div>';
                 }
             } catch (error) {
                 console.error('Error loading teams:', error);
+                const teamsGrid = document.getElementById('teams-grid');
+                teamsGrid.innerHTML = '<div class="error">Fehler beim Laden der Teams</div>';
             }
         }
 
