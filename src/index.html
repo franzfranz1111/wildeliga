@@ -517,8 +517,19 @@
         // Load seasons and populate selectors
         async function loadSeasons() {
             try {
-                const seasons = await WildeLigaAPI.getSeasons();
-                const currentSeason = await WildeLigaAPI.getCurrentSeason();
+                // Direct Supabase calls instead of WildeLigaAPI
+                const { data: seasons, error: seasonsError } = await supabase
+                    .from('seasons')
+                    .select('*')
+                    .order('year', { ascending: false });
+                
+                if (seasonsError) throw seasonsError;
+                
+                const { data: currentSeason, error: currentError } = await supabase
+                    .from('seasons')
+                    .select('*')
+                    .eq('status', 'active')
+                    .single();
                 
                 console.log('Loaded seasons:', seasons);
                 console.log('Current season:', currentSeason);
@@ -600,7 +611,13 @@
         // Load standings from database
         async function loadStandings(seasonId = null) {
             try {
-                const standings = await WildeLigaAPI.getStandings(seasonId);
+                // Direct Supabase call for standings
+                const { data: standings, error: standingsError } = await supabase
+                    .from('season_standings')
+                    .select('*')
+                    .eq('season_id', seasonId);
+                
+                if (standingsError) throw standingsError;
                 const tableBody = document.querySelector('.league-table tbody');
                 
                 if (standings && standings.length > 0) {
@@ -636,7 +653,34 @@
         async function loadResults(seasonId = null) {
             try {
                 console.log('Loading results for season:', seasonId);
-                const matches = await WildeLigaAPI.getAllMatches(seasonId);
+                // Get matches and teams separately
+                const { data: rawMatches, error: matchesError } = await supabase
+                    .from('matches')
+                    .select('*')
+                    .eq('season_id', seasonId)
+                    .order('matchday', { ascending: false });
+                
+                if (matchesError) throw matchesError;
+                
+                // Get teams for name lookup
+                const { data: teams, error: teamsError } = await supabase
+                    .from('teams')
+                    .select('id, name');
+                
+                if (teamsError) throw teamsError;
+                
+                // Create team lookup map
+                const teamMap = {};
+                teams.forEach(team => {
+                    teamMap[team.id] = team.name;
+                });
+                
+                // Add team names to matches
+                const matches = rawMatches.map(match => ({
+                    ...match,
+                    home_team: { name: teamMap[match.home_team_id] || 'Unknown' },
+                    away_team: { name: teamMap[match.away_team_id] || 'Unknown' }
+                }));
                 console.log('Loaded matches:', matches);
                 const resultsContainer = document.getElementById('results-container');
                 
@@ -741,21 +785,23 @@
         // Load teams from database
         async function loadTeams() {
             try {
-                const teams = await WildeLigaAPI.getTeamsWithStatus();
+                // Direct Supabase call for teams
+                const { data: teams, error } = await supabase
+                    .from('teams')
+                    .select('*')
+                    .order('name');
+                
+                if (error) throw error;
                 const teamsGrid = document.getElementById('teams-grid');
                 
                 if (teams && teams.length > 0) {
                     teamsGrid.innerHTML = '';
                     
                     teams.forEach(team => {
-                        const statusClass = team.isActive ? 'active' : 'inactive';
-                        const statusIcon = team.isActive ? '✅' : '⏸️';
-                        
                         const teamHtml = `
-                            <div class="team-card ${statusClass}">
+                            <div class="team-card">
                                 <div class="team-logo">⚽</div>
                                 <h3>${team.name}</h3>
-                                <p class="team-status">${statusIcon} ${team.status}</p>
                                 <p class="team-description">${team.description || 'Traditioneller Verein aus Bremen'}</p>
                                 <a href="teams/${team.name.toLowerCase().replace(/\s+/g, '-').replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue').replace('ß', 'ss')}.html" class="team-link">Team kennenlernen</a>
                             </div>
